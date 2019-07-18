@@ -1,7 +1,22 @@
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 {-# LANGUAGE BangPatterns #-}
-module Cnoidal.Media where
+module Cnoidal.Media  (
+    -- * Synopsis
+    -- | Temporal media for representing music.
+    
+    -- * Time and Intervals
+    Time,
+    Interval, start, end, earlier, later, intersection, intersect, disjoint,
+    
+    -- * Temporal Media
+    Media, toIntervals, fromInterval, fromList,
+    envelope, filter, slow, hasten,
+    shift, staircase,
+    trim, cut,
+    polyphony,
+    ) where
 
+import           Prelude           hiding (filter)
 import qualified Data.Char         as Char
 import qualified Data.List         as List
 import qualified Data.Map          as Map
@@ -20,17 +35,21 @@ import Data.IORef
 {-----------------------------------------------------------------------------
     Time
 ------------------------------------------------------------------------------}
+-- | @Time@ is an exact rational number.
+-- For music, we use the convention that a full measure has length @1@.
 type Time = Rational
 
 {-----------------------------------------------------------------------------
     Intervals
 ------------------------------------------------------------------------------}
--- | Intervals that start at some point in time, but may never end.
+-- | Time intervals start at a time @>=0@, but may be infinite.
 type Interval = (Time, Maybe Time)
 
+-- | Starting time of an interval.
 start :: Interval -> Time
 start (t1,_) = t1
 
+-- | Ending time of an interval. The interval is half-infinite if this is 'Nothing'.
 end :: Interval -> Maybe Time
 end (_,t2) = t2
 
@@ -50,7 +69,7 @@ intersection (t1,t2) (s1,s2) = legalize (max t1 s1, unionWith min t2 s2)
     legalize x                       = Just x
 
 -- | Test whether two intervals intersect.
--- Here, this does not include touching at the endpoints.
+-- Corner case: Two interval do not intersect if they touch at the endpoints.
 intersect :: Interval -> Interval -> Bool
 intersect a b = isJust $ intersection a b
 
@@ -77,6 +96,7 @@ instance Functor Media where
 fromList :: [a] -> Media a
 fromList = M . map (\(k,x) -> ((k,Just $ k+1),x)) . zip [0..]
 
+-- | Create 'Media' from a single 'Interval' and value.
 fromInterval :: (Interval, a) -> Media a
 fromInterval = M . (:[])
 
@@ -90,7 +110,8 @@ envelope (M xs) = (minimum (map (fst.fst) xs), maximum (map (snd.fst) xs))
 filter :: (a -> Bool) -> Media a -> Media a
 filter p (M xs) = M $ List.filter (p . snd) xs
 
--- | Do *not* export this function, as it can break the invariant.
+-- | Transform the interval times. 
+-- Do *not* export this function, as it can break the invariant.
 mapTimes_ :: (Time -> Time) -> [(Interval, a)] -> [(Interval, a)]
 mapTimes_ f xs = [ ((f t1, fmap f t2), x) | ((t1,t2),x) <- xs] 
 

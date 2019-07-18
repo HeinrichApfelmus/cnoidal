@@ -1,4 +1,17 @@
-module Cnoidal.Music where
+module Cnoidal.Music (
+    -- * Synopsis
+    -- | Data structures and functions for representing music.
+    
+    -- * Rhythm
+    Beat,
+    quarter, quaver, beat, tim,
+    
+    -- * Melody
+    Pitch, dore, absolute,
+    
+    -- * Harmony
+    Chord, chords, chord,
+    ) where
 
 import           Control.Monad
 
@@ -19,20 +32,15 @@ example1 :: Media Chord
 example1 = (fromList $ chords "am F C G") <* (join $ fromList $ replicate 4 $ campfire)
 
 {-----------------------------------------------------------------------------
-    Types
-------------------------------------------------------------------------------}
--- | A pitch is specified by a number of semitones.
---   Middle C corresponds to 60.
-type Pitch   = Int
-type Chord   = [Pitch]
-
-{-----------------------------------------------------------------------------
     Rhythm
 ------------------------------------------------------------------------------}
+-- | A rhythm is about the timing of notes.
+--   The values are unimportant, so we use the unit type '()'.
 type Beat = Media ()
 
+quarter, quaver :: Time
 quarter = 1/4
-quaver  = 1/8
+quaver  = 1/8 
 
 -- | Map rhythm words into their beats.
 tim :: Map String Beat
@@ -44,7 +52,7 @@ tim = (hasten 16 . beat) <$> associate
 
 -- | Create a beat from a string.
 --
--- Example: @beat "x,,, x,,,"
+-- Example: @beat "x,,, x,,,"@
 --
 -- Whitespace is removed. Each symbol has unit length.
 -- The symbol @x@ corresponds to a beat. The other symbols correspond to silence.
@@ -52,7 +60,7 @@ beat :: String -> Beat
 beat = fmap (const ()) . C.filter (== 'x')
      . fromList . Prelude.filter (not . Char.isSpace)
 
--- Example beats
+-- | Example beat
 campfire = join $ fromQuavers $ map (tim !) $ words "seerobbe giraffe seerobbe giraffe"
 
 fromQuavers = hasten 4 . fromList
@@ -60,6 +68,10 @@ fromQuavers = hasten 4 . fromList
 {-----------------------------------------------------------------------------
     Melody
 ------------------------------------------------------------------------------}
+-- | A pitch is specified by a number of semitones.
+--   Middle C corresponds to @60@, as in the MIDI standard.
+type Pitch   = Int
+
 -- | Movable do notation.
 dore :: Map String Pitch
 dore = associate "do re mi fa so la ti" [0,2,4,5,7,9, 11]
@@ -85,6 +97,9 @@ instance IsString (Media (Maybe Pitch)) where
 {-----------------------------------------------------------------------------
     Chords
 ------------------------------------------------------------------------------}
+-- | A 'Chord' is a collection of pitches, to be played at the same time.
+type Chord   = [Pitch]
+
 -- | Apply 'chord' to a list of chord notations.
 chords :: String -> [Chord]
 chords = map chord . words

@@ -3,7 +3,24 @@
     At each measure, the player asks which notes s/he should play.
     He then sends them to the MIDI device
 ------------------------------------------------------------------------------}
-module Cnoidal.Player where
+module Cnoidal.Player (
+    -- * Synopsis
+    -- | Play MIDI in real time.
+    --
+    -- A 'Player' plays musical snippet, represented by 'Media', in repeat.
+    --
+    -- An 'Ensemble' groups 'Player's so that they follow the same beat.
+    
+    -- * MIDI
+    Channel, openMidi, closeMidi,
+    
+    -- * Player
+    Player, newPlayer, play,
+    
+    -- * Ensemble
+    Ensemble, newEnsemble, together, dissolve,
+    setTempoBpm,
+    ) where
 
 import Control.Applicative
 import Control.Concurrent   (threadDelay, ThreadId, killThread, forkIO)
@@ -21,11 +38,21 @@ import Cnoidal.Media
 import Cnoidal.Music
 
 {-----------------------------------------------------------------------------
-    TODO:
-    Implement `bpm` function for setting the beats per minute!
+    MIDI
 ------------------------------------------------------------------------------}
 -- | A MIDI channel
 type Channel = Int
+
+-- | Open the default output MIDI device.
+openMidi :: IO Midi.PMStream
+openMidi = do
+    initialize
+    Just dOut <- getDefaultOutputDeviceID
+    Right s <- openOutput dOut 1
+    return s
+
+-- | Close all MIDI devices.
+closeMidi = terminate
 
 {-----------------------------------------------------------------------------
     Player
@@ -86,9 +113,6 @@ data Ensemble = Ensemble
     }
 
 -- | Create a new ensemble for players to join.
---
--- TODO: Add variable BPM!
---
 newEnsemble :: Midi.PMStream -> IO Ensemble
 newEnsemble out = do
         players <- newIORef []
@@ -161,16 +185,3 @@ every getInterval action = do
         action time
         go (time + milliseconds)
 
-{-----------------------------------------------------------------------------
-    MIDI
-------------------------------------------------------------------------------}
--- | Open the default output MIDI device.
-openMidi :: IO Midi.PMStream
-openMidi = do
-    initialize
-    Just dOut <- getDefaultOutputDeviceID
-    Right s <- openOutput dOut 1
-    return s
-
--- | Close all MIDI devices.
-closeMidi = terminate
