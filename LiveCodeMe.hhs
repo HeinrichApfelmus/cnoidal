@@ -1,0 +1,81 @@
+{
+  "version": "0.2.1.0",
+  "cells": [
+    {
+      "cell_type": "text",
+      "source": "How to play sound in Haskell?\n\nConnect to a MIDI output device (e.g. Fluidsynth).\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "s <- openMidi\naddFinalizerSession $ closeMidi >>= print\nshow s"
+    },
+    {
+      "cell_type": "text",
+      "source": "Create an ensemble and players.\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "ensemble <- newEnsemble s\ndrums    <- newPlayer 0\npiano    <- newPlayer 1\nsetTempoBpm ensemble 110\ntogether ensemble [drums, piano]\naddFinalizerSession $ dissolve ensemble"
+    },
+    {
+      "cell_type": "text",
+      "source": "Drums.\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "let kick = 36 :: Pitch; snare = 38 :: Pitch\n-- let kicks = stretch quarter $ fromList [kick,\nlet pattern2 = hasten 4 $ fromList [kick,snare,kick,snare]\nplay drums $ pattern2\n-- fmap (:[]) $ kicks <|> "
+    },
+    {
+      "cell_type": "code",
+      "source": "let [kick,snare,hihat,hihat2] = [36,38,44,42] :: [Pitch]\nlet pat2 = hasten 16 $ beat \"x,,, ,,,, x,,, ,x,,\"\nlet pat3 = hasten  8 $ beat \",,x, ,,x,\"\nlet pat4 = hasten  8 $ beat \"xx,x ,x,x\"\nplay drums $\n        (kick  <$ pat2)\n    <|> (snare <$ pat3)\n    <|> (hihat <$ pat4)"
+    },
+    {
+      "cell_type": "code",
+      "source": "play drums $ empty"
+    },
+    {
+      "cell_type": "text",
+      "source": "Chords.\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "let mychords = polyphony $ fromList\n             $ chords \"am dm am e\"\nlet rhythm   = staircase 1 $ replicate 4 $ campfire\nlet pattern1 = mychords <* rhythm\nplay piano $ pattern1"
+    },
+    {
+      "cell_type": "code",
+      "source": "play piano $ empty"
+    },
+    {
+      "cell_type": "code",
+      "source": "let pattern1 = (fromList $ chords \"am F C G\") >>= (<$ campfire)\nplay piano $ polyphony $ pattern1"
+    },
+    {
+      "cell_type": "code",
+      "source": "play piano $ polyphony $ fromList $ chords \"am F C G\""
+    },
+    {
+      "cell_type": "code",
+      "source": ":type kick <$ pattern1"
+    },
+    {
+      "cell_type": "code",
+      "source": "play drums $ empty"
+    },
+    {
+      "cell_type": "code",
+      "source": "dissolve ensemble"
+    },
+    {
+      "cell_type": "code",
+      "source": "show `fmap` closeMidi"
+    }
+  ],
+  "extensions": "OverloadedStrings",
+  "importModules": "import Cnoidal\nimport Control.Applicative",
+  "loadFiles": "src/Cnoidal.hs",
+  "settings": {
+    "packageTool": "stack",
+    "packagePath": "../hyper-haskell/haskell/stack.yaml",
+    "searchPath": "src"
+  }
+}
