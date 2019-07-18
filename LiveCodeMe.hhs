@@ -23,11 +23,11 @@
     },
     {
       "cell_type": "code",
-      "source": "let kick = 36 :: Pitch; snare = 38 :: Pitch\n-- let kicks = stretch quarter $ fromList [kick,\nlet pattern2 = hasten 4 $ fromList [kick,snare,kick,snare]\nplay drums $ pattern2\n-- fmap (:[]) $ kicks <|> "
+      "source": "play drums $ hasten 4 $ fromList [bd,sn,bd,sn]"
     },
     {
       "cell_type": "code",
-      "source": "let [kick,snare,hihat,hihat2] = [36,38,44,42] :: [Pitch]\nlet pat2 = hasten 16 $ beat \"x,,, ,,,, x,,, ,x,,\"\nlet pat3 = hasten  8 $ beat \",,x, ,,x,\"\nlet pat4 = hasten  8 $ beat \"xx,x ,x,x\"\nplay drums $\n        (kick  <$ pat2)\n    <|> (snare <$ pat3)\n    <|> (hihat <$ pat4)"
+      "source": "let pat2 = hasten 16 $ beat \"x,,, ,,,, x,,, ,x,,\"\nlet pat3 = hasten  8 $ beat \",,x, ,,x,\"\nlet pat4 = hasten  8 $ beat \"xx,x ,x,x\"\nplay drums $\n        (bd <$ pat2)\n    <|> (sn <$ pat3)\n    <|> (hi <$ pat4)"
     },
     {
       "cell_type": "code",
@@ -55,7 +55,7 @@
     },
     {
       "cell_type": "code",
-      "source": ":type kick <$ pattern1"
+      "source": ":type bd <$ pattern1"
     },
     {
       "cell_type": "code",

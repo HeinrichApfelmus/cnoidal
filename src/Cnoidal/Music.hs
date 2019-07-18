@@ -5,6 +5,8 @@ module Cnoidal.Music (
     -- * Rhythm
     Beat,
     quarter, quaver, beat, tim,
+    campfire,
+    bd, sn, rim, hi, hic, hio, crash,
     
     -- * Melody
     Pitch, dore, absolute,
@@ -60,16 +62,31 @@ beat :: String -> Beat
 beat = fmap (const ()) . C.filter (== 'x')
      . fromList . Prelude.filter (not . Char.isSpace)
 
--- | Example beat
+-- | Example rhythm.
 campfire = join $ fromQuavers $ map (tim !) $ words "seerobbe giraffe seerobbe giraffe"
 
 fromQuavers = hasten 4 . fromList
+
+-- | Commonly used percussion instruments, as in the General MIDI standard.
+--
+-- See https://en.wikipedia.org/wiki/General_MIDI#Percussion
+--
+-- > bd    = bass drum
+-- > sn    = snare drum
+-- > rim   = rimshot
+-- > hi    = hi-hat (pedal)
+-- > hic   = hi-hat (closed)
+-- > hio   = hi-hat (open)
+-- > crash = cymbal
+bd :: Pitch
+rim, sn, hi, hic, hio, crash :: Pitch
+[bd,rim, sn, hi, hic, hio, crash] = [36,37,38,44,42,43,49]
 
 {-----------------------------------------------------------------------------
     Melody
 ------------------------------------------------------------------------------}
 -- | A pitch is specified by a number of semitones.
---   Middle C corresponds to @60@, as in the MIDI standard.
+--   Middle C corresponds to @60@, as in the General sMIDI standard.
 type Pitch   = Int
 
 -- | Movable do notation.
