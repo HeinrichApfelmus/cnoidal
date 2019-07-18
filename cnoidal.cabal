@@ -1,0 +1,43 @@
+Name:               cnoidal
+Version:            0.1.0.0
+Synopsis:           represent, transform and live code music
+Description:
+  /Cnoidal/ is a library for representing, transforming and live coding music.
+  .
+  It is based on the notion of /temporal media/, a data type that
+  represents a collection of time intervals tagged with values.
+  It supports various functor instances, like Applicative Functor,
+  which are highly useful for live coding.
+
+Category:           Music
+License:            BSD3
+License-file:       LICENSE
+Author:             Heinrich Apfelmus
+Maintainer:         Heinrich Apfelmus <apfelmus at quantentunnel de>
+Homepage:           https://github.com/HeinrichApfelmus/cnoidal
+Copyright:          (c) Heinrich Apfelmus 2019
+
+build-type:         Simple
+cabal-version:      >= 1.6
+
+extra-source-files:
+    CHANGELOG.md
+    README.md
+
+source-repository head
+    type:           git
+    location:       git://github.com/HeinrichApfelmus/cnoidal.git
+
+Library
+    hs-source-dirs:     src
+    build-depends:      base       >= 4.5 && < 4.14,
+                        containers >= 0.4 && < 0.7,
+                        PortMidi   == 0.2.*
+    
+--    ghc-options:        -Wall -fno-warn-missing-signatures
+
+    exposed-modules:
+                        Cnoidal,
+                        Cnoidal.Media,
+                        Cnoidal.Music,
+                        Cnoidal.Player
