@@ -31,7 +31,8 @@ test :: Media String
 test = slow quarter $ fromList $ words "bd bd sd sn"
 
 example1 :: Media Chord
-example1 = (fromList $ chords "am F C G") <* (join $ fromList $ replicate 4 $ campfire)
+example1 = (fromList $ chords "am F C G") <*
+    (bind (fromList $ replicate 4 $ campfire) id)
 
 {-----------------------------------------------------------------------------
     Rhythm
@@ -63,7 +64,7 @@ beat = fmap (const ()) . C.filter (== 'x')
      . fromList . Prelude.filter (not . Char.isSpace)
 
 -- | Example rhythm.
-campfire = join $ fromQuavers $ map (tim !) $ words "seerobbe giraffe seerobbe giraffe"
+campfire = mconcat $ map (tim !) $ words "seerobbe giraffe seerobbe giraffe"
 
 fromQuavers = hasten 4 . fromList
 

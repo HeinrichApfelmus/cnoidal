@@ -39,7 +39,7 @@
     },
     {
       "cell_type": "code",
-      "source": "let mychords = polyphony $ fromList\n             $ chords \"am dm am e\"\nlet rhythm   = staircase 1 $ replicate 4 $ campfire\nlet pattern1 = mychords <* rhythm\nplay piano $ pattern1"
+      "source": "let mychords = polyphony $ fromList\n             $ chords \"am F C G\"\nlet rhythm   = staircase 1 $ replicate 4 $ campfire\nlet pattern1 = mychords <* rhythm\nplay piano $ pattern1"
     },
     {
       "cell_type": "code",
@@ -47,7 +47,7 @@
     },
     {
       "cell_type": "code",
-      "source": "let pattern1 = (fromList $ chords \"am F C G\") >>= (<$ campfire)\nplay piano $ polyphony $ pattern1"
+      "source": "let pattern1 = (fromList $ chords \"am F C G\") `bind` (<$ campfire)\nplay piano $ polyphony $ pattern1"
     },
     {
       "cell_type": "code",
