@@ -15,7 +15,7 @@
     },
     {
       "cell_type": "code",
-      "source": "ensemble <- newEnsemble s\ndrums    <- newPlayer 0\npiano    <- newPlayer 1\nsetTempoBpm ensemble 110\ntogether ensemble [drums, piano]\naddFinalizerSession $ dissolve ensemble"
+      "source": "ensemble <- newEnsemble s\ndrums    <- newPlayer 10\npiano    <- newPlayer 1\nsetTempoBpm ensemble 110\ntogether ensemble [drums, piano]\naddFinalizerSession $ dissolve ensemble"
     },
     {
       "cell_type": "text",
@@ -27,7 +27,11 @@
     },
     {
       "cell_type": "code",
-      "source": "let pat2 = hasten 16 $ beat \"x,,, ,,,, x,,, ,x,,\"\nlet pat3 = hasten  8 $ beat \",,x, ,,x,\"\nlet pat4 = hasten  8 $ beat \"xx,x ,x,x\"\nplay drums $\n        (bd <$ pat2)\n    <|> (sn <$ pat3)\n    <|> (hi <$ pat4)"
+      "source": "let pat2 = hasten 16 $ beat \"x,,, ,,,xx,,, ,x,,\"\nlet pat3 = hasten  8 $ beat \",,x, ,,x,\"\nlet pat4 = hasten  8 $ beat \",x,x ,x,x\"\nplay drums $\n        (bd <$ pat2)\n    <|> (sn <$ pat3)\n    <|> (hi <$ pat4)"
+    },
+    {
+      "cell_type": "code",
+      "source": "[bd, sn, hi]"
     },
     {
       "cell_type": "code",

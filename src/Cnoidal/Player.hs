@@ -133,8 +133,8 @@ newEnsemble out = do
             , PMEvent { message = noteOff, timestamp = fromIntegral $ t + timePerMeasure (t1+t2) bpm - 1 }
             ]
             where
-            noteOn  = encodeMsg $ PMMsg { status = 0x90 + fromIntegral channel , data1 = fromIntegral pitch, data2 = 80 }
-            noteOff = encodeMsg $ PMMsg { status = 0x80 + fromIntegral channel , data1 = fromIntegral pitch, data2 =  0 }
+            noteOn  = encodeMsg $ PMMsg { status = 0x90 + fromIntegral channel - 1, data1 = fromIntegral pitch, data2 = 80 }
+            noteOff = encodeMsg $ PMMsg { status = 0x80 + fromIntegral channel - 1, data1 = fromIntegral pitch, data2 =  0 }
 
 -- | Get the measure that the player is currently playing.
 getMeasure :: [Player] -> IO [(Time, Time, (Pitch, Channel))]
