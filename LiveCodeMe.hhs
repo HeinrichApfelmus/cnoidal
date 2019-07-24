@@ -15,23 +15,23 @@
     },
     {
       "cell_type": "code",
-      "source": "ensemble <- newEnsemble s\ndrums    <- newPlayer 10\npiano    <- newPlayer 1\nsetTempoBpm ensemble 110\ntogether ensemble [drums, piano]\naddFinalizerSession $ dissolve ensemble"
+      "source": "ensemble <- newEnsemble s\ndrums    <- newPlayer 10\npad      <- newPlayer 1\npiano    <- newPlayer 2\nsetTempoBpm ensemble 110\ntogether ensemble [drums, pad, piano]\naddFinalizerSession $ dissolve ensemble"
+    },
+    {
+      "cell_type": "code",
+      "source": "setTempoBpm ensemble 110"
     },
     {
       "cell_type": "text",
-      "source": "Drums.\n"
+      "source": "Drums\n"
     },
     {
       "cell_type": "code",
-      "source": "play drums $ hasten 4 $ fromList [bd,sn,bd,sn]"
+      "source": "play drums $ hasten 4 $ fromList [bd,sn,bd,sn]\n[bd, sn, chh, ohh]"
     },
     {
       "cell_type": "code",
-      "source": "let pat1 = hasten 16 $ beat \"x,,, ,,,xx,,, ,x,,\"\nlet pat2 = hasten  8 $ beat \",,x, ,,x,\"\nlet pat3 = hasten  8 $ beat \",x,x ,x,x\"\nplay drums $\n        (bd  <$ pat1)\n    <|> (sn  <$ pat2)\n    <|> (chh <$ pat3)"
-    },
-    {
-      "cell_type": "code",
-      "source": "[bd, sn, chh, ohh]"
+      "source": "let pat1 = hasten 16 $ beat \"x,,, ,,x, x,,, ,,,x\"\nlet pat2 = hasten  8 $ beat \",,x, ,,xx\"\nlet pat3 = hasten  8 $ beat \",x,x ,x,x\"\nplay drums $\n        (bd  <$ pat1)\n    <|> (sn  <$ pat2)\n    -- <|> (chh <$ pat3)"
     },
     {
       "cell_type": "code",
@@ -39,15 +39,27 @@
     },
     {
       "cell_type": "text",
-      "source": "Chords.\n"
+      "source": "Pad\n"
     },
     {
       "cell_type": "code",
-      "source": "let mychords = polyphony $ fromList\n             $ chords \"am F C G\"\nlet rhythm   = staircase 1 $ replicate 4 $ campfire\nlet pattern1 = mychords <* rhythm\nplay piano $ pattern1"
+      "source": "play pad $ polyphony $ slow 1 $ fromList $ chords \"am am G G\""
     },
     {
       "cell_type": "code",
-      "source": "play piano $ empty"
+      "source": "play pad $ mychords"
+    },
+    {
+      "cell_type": "code",
+      "source": "play pad $ empty"
+    },
+    {
+      "cell_type": "text",
+      "source": "Rhythm instrument\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "let mychords = polyphony $ fromList $ chords \"am F dm G\"\nlet rhythm   = mconcat   $ replicate 4 campfire\nlet pattern1 = mychords <* rhythm\nplay piano $ pattern1"
     },
     {
       "cell_type": "code",
@@ -58,12 +70,20 @@
       "source": "play piano $ polyphony $ fromList $ chords \"am F C G\""
     },
     {
-      "cell_type": "code",
-      "source": ":type bd <$ pattern1"
+      "cell_type": "text",
+      "source": "Melody\n"
     },
     {
       "cell_type": "code",
-      "source": "play drums $ empty"
+      "source": "play piano $ hasten 4 $ fromList $ map (+12) $ map pitch $ words \"c5 g e d c5 g a\""
+    },
+    {
+      "cell_type": "code",
+      "source": "play piano $ empty"
+    },
+    {
+      "cell_type": "text",
+      "source": "Exit everything.\n"
     },
     {
       "cell_type": "code",
@@ -75,7 +95,7 @@
     }
   ],
   "extensions": "OverloadedStrings",
-  "importModules": "import Cnoidal\nimport Control.Applicative",
+  "importModules": "import Cnoidal\nimport Control.Applicative\nimport qualified Data.Map",
   "loadFiles": "src/Cnoidal.hs",
   "settings": {
     "packageTool": "stack",

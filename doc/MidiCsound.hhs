@@ -15,7 +15,7 @@
     },
     {
       "cell_type": "code",
-      "source": "let sam x y = runSam (4*120) $ samMidiTap (Chn 10) 1.0 x y\n    chords = atMidi $ setMidiChn (Chn 1) vibraphone1\n    ensemble = sum [sam 36 bd, sam 38 sn, sam 44 chh, sam 42 chh, sam 43 ohh, chords]\ndac $ mul 0.3 $ ensemble"
+      "source": "let sam x y = runSam (4*120) $ samMidiTap (Chn 10) 1.0 x y\n    pad    = atMidi $ mul 0.5 $ setMidiChn (Chn 1) underwaterPad\n    chords = atMidi $ setMidiChn (Chn 2) alienIsAngry\n    drums  = zipWith sam [36,38,44,42,43] [mul 1.2 bd,sn,chh,chh,ohh]\n    ensemble = sum $ drums ++ [pad,chords]\ndac $ mul 0.3 $ ensemble"
     }
   ],
   "extensions": "",
