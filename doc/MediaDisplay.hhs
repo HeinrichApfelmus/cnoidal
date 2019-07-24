@@ -1,0 +1,29 @@
+{
+  "version": "0.2.1.0",
+  "cells": [
+    {
+      "cell_type": "text",
+      "source": "Visualizing patterns\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "let pat1 = hasten 16 $ beat \"x,,, ,,,xx,,, ,x,,\"\n    pat2 = hasten  8 $ beat \",,x, ,,x,\"\n    pat3 = hasten  8 $ beat \",x,x ,x,x\"\ntimeline $ (bd  <$ pat1)\n    <|> (sn  <$ pat2)\n    <|> (chh <$ pat3)"
+    },
+    {
+      "cell_type": "text",
+      "source": "Chords.\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "timeline $ polyphony $ fromList $ chords \"am F C G\""
+    }
+  ],
+  "extensions": "OverloadedStrings",
+  "importModules": "import Cnoidal\nimport Cnoidal.Display\nimport Control.Applicative",
+  "loadFiles": "../src/Cnoidal.hs\n../src/Cnoidal/Display.hs",
+  "settings": {
+    "packageTool": "stack",
+    "packagePath": "../../hyper-haskell/haskell/stack.yaml",
+    "searchPath": "../src"
+  }
+}

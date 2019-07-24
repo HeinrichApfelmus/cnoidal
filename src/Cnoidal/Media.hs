@@ -19,8 +19,6 @@ module Cnoidal.Media  (
 
 import           Prelude           hiding (filter)
 import qualified Data.List         as List
-import qualified Data.Map          as Map
-import           Data.Map               (Map,(!))
 import           Data.Maybe
 import           Data.Monoid
 import           Data.Ord             (comparing)
@@ -202,16 +200,6 @@ instance Monoid (Media a) where
 {-----------------------------------------------------------------------------
   Helper functions
 ------------------------------------------------------------------------------}
--- | Replace each element in the list by a unique natural number,
--- starting at @1@ and counting upwards.
-uniques :: Ord a => [a] -> [Integer]
-uniques = go 1 Map.empty
-    where
-    go _  _  []     = []
-    go !n !m (x:xs) = case Map.lookup x m of
-        Nothing -> n : go (n+1) (Map.insert x n m) xs
-        Just k  -> k : go n m xs
-
 -- | Take the maximum of two maybes. 'Nothing' represents infinity.
 maxMaybe :: Maybe Time -> Maybe Time -> Maybe Time
 maxMaybe (Just a) (Just b) = Just (max a b)
