@@ -1,0 +1,29 @@
+{
+  "version": "0.2.1.0",
+  "cells": [
+    {
+      "cell_type": "text",
+      "source": "A MIDI software instrument created with Csound.\n\nTest whether Csound works.\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "let bass  = pat [3,3,2] bd\n    snare = del 2 $ pat [4] sn\n    hats  = pat' [1,0.5,0.3,0.2] [1] chh\ndac $ mul 0.5 $ str 0.8 $ sum [bass, snare, hats]"
+    },
+    {
+      "cell_type": "text",
+      "source": "Instruments for use with *cnoidal*.\nChannel 10: drum kit\nChannel 1: pad\nChannel 2: rhythm instrument\nChannel 3: lead\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "let sam x y = runSam (4*120) $ samMidiTap (Chn 10) 1.0 x y\n    chords = atMidi $ setMidiChn (Chn 1) vibraphone1\n    ensemble = sum [sam 36 bd, sam 38 sn, sam 44 chh, sam 42 chh, sam 43 ohh, chords]\ndac $ mul 0.3 $ ensemble"
+    }
+  ],
+  "extensions": "",
+  "importModules": "import Csound.Base\nimport Csound.Patch\nimport Csound.Sam\nimport Csound.Catalog.Drum.Tr808",
+  "loadFiles": "",
+  "settings": {
+    "packageTool": "stack",
+    "packagePath": "../../hyper-haskell/haskell/stack.yaml",
+    "searchPath": "../worksheets"
+  }
+}
