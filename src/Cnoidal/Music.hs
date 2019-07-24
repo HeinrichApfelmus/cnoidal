@@ -9,7 +9,7 @@ module Cnoidal.Music (
     bd, sn, rim, hh, chh, ohh, crash,
     
     -- * Melody
-    Pitch, dore, absolute,
+    Pitch, pitch, dore,
     
     -- * Harmony
     Chord, chords, chord,
@@ -86,24 +86,48 @@ rim, sn, hh, chh, ohh, crash :: Pitch
 {-----------------------------------------------------------------------------
     Melody
 ------------------------------------------------------------------------------}
--- | A pitch is specified by a number of semitones.
---   Middle C corresponds to @60@, as in the General sMIDI standard.
-type Pitch   = Int
+-- | A pitch is specified by a number of semitones above a given reference note.
+-- We follow the conventions of the General MIDI standard.
+type Pitch = Int
+
+-- | The middle C. It equals @60@ in the General MIDI standard.
+middleC, c4 :: Pitch
+middleC = 60
+c4      = middleC
 
 -- | Movable do notation.
 dore :: Map String Pitch
 dore = associate "do re mi fa so la ti" [0,2,4,5,7,9, 11]
     <> associate "di ri    fi si li   " [1,3,  6,8,10]
     <> associate "   ra me    se le te" [  1,3,  6,8, 10]
-    where
-    associate xs ys = M.fromList $ zip (words xs) ys
 
--- | Absolute pitch names.
-absolute :: Char -> Pitch
-absolute = f . Char.toLower
+associate :: String -> [a] -> Map String a
+associate xs ys = M.fromList $ zip (words xs) ys
+
+-- | Map pitch names to 'Pitch'.
+pitch :: String -> Pitch
+pitch = fst . pitchP
+
+-- | Parse pitch name.
+pitchP :: String -> (Pitch, String)
+pitchP = name middleC
     where
-    f 'c' = 0; f 'a' = 9; f 'b' = 11;
-    f 'd' = 2; f 'e' = 4; f 'f' = 5;  f 'g' = 7;
+    name x []        = (x, "")
+    name x (c:cs)    = case M.lookup [Char.toLower c] names of
+        Nothing -> sharpen x (c:cs)
+        Just d  -> sharpen (x+d) cs
+    sharpen x []     = (x, "")
+    sharpen x (c:cs) = case M.lookup [c] sharps of
+        Nothing -> octave x (c:cs)
+        Just d  -> octave (x+d) cs
+    octave  x []     = (x, "")
+    octave  x (c:cs) = case M.lookup [c] octaves of
+        Nothing -> (x, c:cs)
+        Just d  -> (x+d, cs)
+
+    octaves = associate "0 1 2 3 4 5 6 7 8" [ 12*(y-4) | y <- [0..8] ]
+    sharps  = associate "# b" [1,-1]
+    names   = associate "c d e f g a b" [0,2,4,5,7,9,11]
 
 {-
 instance IsString (Media (Maybe Pitch)) where
@@ -124,9 +148,10 @@ chords = map chord . words
 
 -- | Map Jazz chord notation into list of absolute pitches.
 chord :: String -> Chord
-chord (c:cs) = map (60+) $ notes $ case cs of
-        ""  -> "do mi so"
-        "m" -> "do me so"
+chord s = case pitchP s of
+      (x,cs) -> map (x+) $ notes $ case cs of
+          ""  -> "do mi so"
+          "m" -> "do me so"
     where
-    notes = map (\x -> absolute c + dore ! x) . words
+    notes = map (dore !) . words
 
