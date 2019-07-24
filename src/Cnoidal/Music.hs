@@ -6,7 +6,7 @@ module Cnoidal.Music (
     Beat,
     quarter, quaver, beat, tim,
     campfire,
-    bd, sn, rim, hi, hic, hio, crash,
+    bd, sn, rim, hh, chh, ohh, crash,
     
     -- * Melody
     Pitch, dore, absolute,
@@ -75,13 +75,13 @@ fromQuavers = hasten 4 . fromList
 -- > bd    = bass drum
 -- > sn    = snare drum
 -- > rim   = rimshot
--- > hi    = hi-hat (pedal)
--- > hic   = hi-hat (closed)
--- > hio   = hi-hat (open)
+-- > hh    = hi-hat (pedal)
+-- > chh   = hi-hat (closed)
+-- > ohh   = hi-hat (open)
 -- > crash = cymbal
 bd :: Pitch
-rim, sn, hi, hic, hio, crash :: Pitch
-[bd,rim, sn, hi, hic, hio, crash] = [36,37,38,44,42,43,49]
+rim, sn, hh, chh, ohh, crash :: Pitch
+[bd, rim, sn, hh, chh, ohh, crash] = [36,37,38, 44,42,43, 49]
 
 {-----------------------------------------------------------------------------
     Melody

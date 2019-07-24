@@ -27,11 +27,11 @@
     },
     {
       "cell_type": "code",
-      "source": "let pat2 = hasten 16 $ beat \"x,,, ,,,xx,,, ,x,,\"\nlet pat3 = hasten  8 $ beat \",,x, ,,x,\"\nlet pat4 = hasten  8 $ beat \",x,x ,x,x\"\nplay drums $\n        (bd <$ pat2)\n    <|> (sn <$ pat3)\n    <|> (hi <$ pat4)"
+      "source": "let pat1 = hasten 16 $ beat \"x,,, ,,,xx,,, ,x,,\"\nlet pat2 = hasten  8 $ beat \",,x, ,,x,\"\nlet pat3 = hasten  8 $ beat \",x,x ,x,x\"\nplay drums $\n        (bd  <$ pat1)\n    <|> (sn  <$ pat2)\n    <|> (chh <$ pat3)"
     },
     {
       "cell_type": "code",
-      "source": "[bd, sn, hi]"
+      "source": "[bd, sn, chh, ohh]"
     },
     {
       "cell_type": "code",
