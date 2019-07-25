@@ -57,51 +57,51 @@ closeMidi = terminate
 {-----------------------------------------------------------------------------
     Player
 ------------------------------------------------------------------------------}
+-- | A 'Player' repeats a piece of music, which can be changed on the fly.
 data Player = Player
     { pChannel :: Int
-    , pNotes   :: IORef (IO [(Time, Time, Pitch)])
+    , pNotes   :: IORef (Musicbox Pitch)
     }
 
--- | Create a new player that participates in the ensemble.
-newPlayer :: Channel -> IO Player
-newPlayer channel = do
-    notes <- newIORef (return [])
-    return $ Player { pChannel = channel, pNotes = notes }
+-- | A collection of musical notes, grouped by measures.
+-- Each element of the outer list is one measure.
+-- The starting and ending times of each interval are relative to this measure.
+type Musicbox a = [[(Interval, a)]]
 
--- | Set the pattern for a player to play.
-play      :: Player -> Media Pitch -> IO ()
-play p pat = writeIORef (pNotes p) =<< scheduleChords pat
-
--- | Schedule 'Media' to be played by a player.
---
--- The media is cycled at the smallest integer such that notes are still played
---
--- The IO action returns the next full measure of notes to be played.
--- The starting times begin an @0@ and are relative to the start of the measure.
-scheduleChords :: Media Pitch -> IO (IO [(Time, Time, Pitch)])
-scheduleChords media = do
-    let len = measures media
-    if len == 0
-        then return (return [])
-        else do
-            count <- newIORef 0
-            return $ do
-                c <- readIORef count
-                writeIORef count $! (c + 1) `mod` len
-                let t = fromIntegral c
-                let notes = [(t1 - t, maybe 1 (\t2 -> t2-t1) s2, a) |
-                        ((t1,s2),a) <- toIntervals media, t <= t1, t1 < t+1]
-                return notes
-
--- Count the number of measures in the given media.
-measures :: Ord a => Media a -> Integer
-measures media = case toIntervals media of 
-    [] -> 0
-    xs -> forwardToInteger . maximum . map (start . fst) $ xs
+fromMediaCycle :: Media a -> Musicbox a
+fromMediaCycle media = mycycle $ map (measure . fromIntegral) [0..len-1]
+    where
+    mycycle xs = if null xs then [] else cycle xs
+    measure t = [ ((subtract t t1, (subtract t) `fmap` s2), a)
+                | ((t1,s2),a) <- toIntervals media, t <= t1, t1 < t+1]
+    len   = forwardToInteger $ maybe 1 id (duration media)
 
 forwardToInteger :: Time -> Integer
-forwardToInteger x = q + 1
+forwardToInteger x = if r == 0 then q else q + 1
     where (q,r) = numerator x `divMod` denominator x
+
+-- | Retrieve current measure to be played.
+getMeasure :: Player -> IO [(Interval, Pitch)]
+getMeasure = fmap (\xs -> if null xs then [] else head xs) . readIORef . pNotes
+
+-- | Advance the measure to be played and retrieve the current one.
+nextMeasure :: Player -> IO ()
+nextMeasure p = do
+    music <- readIORef (pNotes p)
+    case music of
+        []   -> return ()
+        x:xs -> writeIORef (pNotes p) xs
+
+-- | Create a new player that participates in the ensemble.
+-- The input argument denotes the MIDI channel on which the player outputs notes.
+newPlayer :: Channel -> IO Player
+newPlayer channel = do
+    notes <- newIORef []
+    return $ Player { pChannel = channel, pNotes = notes }
+
+-- | Set the piece for a 'Player' to play, beginning at the next full measure.
+play :: Player -> Media Pitch -> IO ()
+play p = writeIORef (pNotes p) . fromMediaCycle
 
 {-----------------------------------------------------------------------------
     Ensemble
@@ -117,32 +117,50 @@ newEnsemble :: Midi.PMStream -> IO Ensemble
 newEnsemble out = do
         players <- newIORef []
         eBpm    <- newIORef 120
-        id      <- forkIO $
+        thread  <- forkIO $
             every (timePerMeasure 1 `fmap` readIORef eBpm) $ \millisecs -> do
                 bpm <- readIORef eBpm
-                playNotes millisecs bpm =<< getMeasure =<< readIORef players
+                playNotes millisecs bpm =<< nextMeasures =<< readIORef players
                 return ()
-        return $ Ensemble { eThreadId = id, ePlayers = players, eBpm = eBpm }
+        return $ Ensemble { eThreadId = thread, ePlayers = players, eBpm = eBpm }
     where
     timePerMeasure t bpm = round $ t * (4 / bpm) * 60 * 1000
-    playNotes      t bpm =
+    playNotes      t bpm = -- see Note [Midi.writeEvents]
         Midi.writeEvents out . sortBy (comparing timestamp) . concatMap mkEvent
         where
         mkEvent (t1, t2, (pitch, channel)) =
-            [ PMEvent { message = noteOn  , timestamp = fromIntegral $ t + timePerMeasure t1 bpm }
-            , PMEvent { message = noteOff, timestamp = fromIntegral $ t + timePerMeasure (t1+t2) bpm - 1 }
+            [ PMEvent { message = noteOn , timestamp = fromIntegral $ t + timePerMeasure t1 bpm }
+            , PMEvent { message = noteOff, timestamp = fromIntegral $ t + timePerMeasure t2 bpm - 1 }
             ]
             where
             noteOn  = encodeMsg $ PMMsg { status = 0x90 + fromIntegral channel - 1, data1 = fromIntegral pitch, data2 = 80 }
             noteOff = encodeMsg $ PMMsg { status = 0x80 + fromIntegral channel - 1, data1 = fromIntegral pitch, data2 =  0 }
 
--- | Get the measure that the player is currently playing.
-getMeasure :: [Player] -> IO [(Time, Time, (Pitch, Channel))]
-getMeasure = fmap concat . mapM measure
+{- Note [Midi.writeEvent]
+
+The `Midi.writeEvents` function expects the timestampes to be in increasing order.
+That is why we need to sort our events by timestamp before sending them.
+If we do not do that, MIDI messages whose timestamp is too early will be dropped.
+
+-}
+
+{- FIXME
+Notes that have a duration that goes beyond the current measure currently
+break everything.
+The `Midi.writeEvents` functions expects messages to be written in
+increasing time stamps. There is no way to "sneak" a midi message in before.
+But this may happen when the measure changes.
+In particular, it may happen that the "note off" event appears after a new "note on" event.s
+-}
+
+-- | Get the measure that the players are currently playing.
+nextMeasures :: [Player] -> IO [(Time, Time, (Pitch, Channel))]
+nextMeasures = fmap concat . mapM measure
     where
     measure p = do
-        xs <- Control.Monad.join $ readIORef $ pNotes p
-        return [(t1, t2, (a, pChannel p)) | (t1,t2,a) <- xs]
+        xs <- getMeasure p
+        nextMeasure p
+        return [(t, maybe (t+3) id s, (a, pChannel p)) | ((t,s),a) <- xs]
 
 -- | Set the tempo (in beats per minute)
 setTempoBpm :: Ensemble -> Rational -> IO ()
