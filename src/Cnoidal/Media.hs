@@ -115,11 +115,11 @@ mapTimes_ f xs = [ ((f t1, fmap f t2), x) | ((t1,t2),x) <- xs]
 
 -- | Multiply all times by a common factor, making the intervals longer.
 slow :: Rational -> Media a -> Media a
-slow s (Media d xs) = Media d $ mapTimes_ (*s) xs
+slow s (Media d xs) = Media (fmap (*s) d) $ mapTimes_ (*s) xs
 
 -- | Divide all times by a common factor, making the intervals shorter.
 hasten :: Rational -> Media a -> Media a
-hasten s (Media d xs) = Media (fmap (/s) d) $ mapTimes_ (/s) xs
+hasten s = slow (1/s)
 
 -- | Shift all times by a time difference.
 -- The assigned duration will *not* be shifted.
