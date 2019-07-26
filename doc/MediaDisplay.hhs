@@ -11,11 +11,11 @@
     },
     {
       "cell_type": "text",
-      "source": "Chords.\n"
+      "source": "Chords\n"
     },
     {
       "cell_type": "code",
-      "source": "timeline $ polyphony $ fromList $ chords \"am F C G\""
+      "source": "timeline $ polyphony $ fromList $ chords \"am F dm G\""
     }
   ],
   "extensions": "OverloadedStrings",
