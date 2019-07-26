@@ -12,15 +12,17 @@ module Cnoidal.Music (
     Pitch, pitch, dore,
     
     -- * Harmony
-    Chord, chords, chord,
+    Chord, chords, chord, voicelead,
     ) where
 
 import           Control.Monad
 
 import qualified Data.Char      as Char
+import qualified Data.List      as Data
 import qualified Data.Map       as M
 import           Data.Map               (Map, (!))
 import           Data.Monoid            ((<>))
+import qualified Data.Ord       as Data
 
 import           Cnoidal.Media  as C
 
@@ -154,4 +156,23 @@ chord s = case pitchP s of
           "m" -> "do me so"
     where
     notes = map (dore !) . words
+
+-- | Use voice lead
+voicelead :: [Chord] -> [Chord]
+voicelead [] = []
+voicelead xs = Data.scanl1 lead xs
+    where
+    lead x y     = Data.minimumBy (Data.comparing $ distance x) $ inversions y
+    inversions x = take 5 (iterate invertUp x) ++ take 5 (iterate invertDown x)
+    distance x y = sum $ map abs $ zipWith (subtract) x y
+
+-- | Invert chord upwards one step.
+invertUp :: Chord -> Chord
+invertUp []     = []
+invertUp (x:xs) = xs ++ [x + 12]
+
+-- | Invert chord downwards one step.
+invertDown :: Chord -> Chord
+invertDown [] = []
+invertDown xs = (last xs - 12) : init xs
 

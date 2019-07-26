@@ -31,7 +31,7 @@
     },
     {
       "cell_type": "code",
-      "source": "let pat1 = hasten 16 $ beat \"x,,, ,,x, x,,, ,,,x\"\nlet pat2 = hasten  8 $ beat \",,x, ,,xx\"\nlet pat3 = hasten  8 $ beat \",x,x ,x,x\"\nplay drums $\n        (bd  <$ pat1)\n    <|> (sn  <$ pat2)\n    -- <|> (chh <$ pat3)"
+      "source": "let pat1 = hasten 16 $ beat \"x,,, ,,x, x,,, ,,,x\"\nlet pat2 = hasten  8 $ beat \",,x, ,,x,\"\nlet pat3 = hasten  8 $ beat \",x,x ,x,x\"\nplay drums $\n        (bd  <$ pat1)\n    <|> (sn  <$ pat2)\n    -- <|> (chh <$ pat3)"
     },
     {
       "cell_type": "code",
@@ -43,11 +43,11 @@
     },
     {
       "cell_type": "code",
-      "source": "play pad $ polyphony $ slow 1 $ fromList $ chords \"am am G G\""
+      "source": "play pad $ polyphony $ slow 2 $ fromList $ chords \"am G\""
     },
     {
       "cell_type": "code",
-      "source": "play pad $ mychords"
+      "source": "play pad $ polyphony $ fromList $ voicelead $ chords \"am F C G\""
     },
     {
       "cell_type": "code",
@@ -59,7 +59,7 @@
     },
     {
       "cell_type": "code",
-      "source": "let mychords = polyphony $ fromList $ chords \"am F dm G\"\nlet rhythm   = mconcat   $ replicate 4 campfire\nlet pattern1 = mychords <* rhythm\nplay piano $ pattern1"
+      "source": "let mychords = polyphony $ fromList $ chords \"am F C G\"\nlet rhythm   = mconcat   $ replicate 4 campfire\nlet pattern1 = mychords <* rhythm\nplay piano $ pattern1"
     },
     {
       "cell_type": "code",
@@ -75,7 +75,7 @@
     },
     {
       "cell_type": "code",
-      "source": "play piano $ hasten 4 $ fromList $ map (+12) $ map pitch $ words \"c5 g e d c5 g a\""
+      "source": "let q1 = map (+2*12) $ map pitch $ words \"c5 g e d c5 g a\"\nlet q2 = map (+1*12) $ map pitch $ words \"c5 d a d a b e\"\nplay piano $ hasten 4 $ fromList q1 <|> fromList q2"
     },
     {
       "cell_type": "code",

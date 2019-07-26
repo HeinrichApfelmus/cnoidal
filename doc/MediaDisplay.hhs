@@ -15,7 +15,7 @@
     },
     {
       "cell_type": "code",
-      "source": "timeline $ polyphony $ fromList $ chords \"am F dm G\""
+      "source": "timeline $ polyphony $ fromList $ voicelead $ chords \"am F dm G\""
     }
   ],
   "extensions": "OverloadedStrings",
