@@ -11,7 +11,7 @@ module Cnoidal.Music (
     bd, sn, rim, hh, chh, ohh, crash,
     
     -- * Melody
-    Pitch, pitch, pitches, dore,
+    Pitch, middleC, c4, pitch, pitches, dore,
     Note, IsNote(..), silence, with,
     
     -- * Bass
@@ -49,7 +49,7 @@ example1 = (fromList $ chords "am F C G") <*
 type Velocity = Int
 
 -- | Common interpretation of musical dynamics in terms of MIDI velocities,
--- following MuseScore 3.0 .
+-- following MuseScore 3.0.
 -- See also https://en.wikipedia.org/wiki/Dynamics_%28music%29
 --
 -- > ppp = 16   pp = 33   piano = 49  mp = 64
@@ -161,12 +161,6 @@ pitchP = name middleC
     sharps  = associate "# b" [1,-1]
     names   = associate "c d e f g a b" [0,2,4,5,7,9,11]
 
-{-
-instance IsString (Media (Maybe Pitch)) where
-    fromString = id
-        . fmap (fmap (+60)) . slow quarter . fromList
-        . map (`M.lookup` dore) . words
--}
 
 -- | A 'Note' informs the sound that an instrument makes when struck.
 -- Essentially, it combines pitch and velocity.
