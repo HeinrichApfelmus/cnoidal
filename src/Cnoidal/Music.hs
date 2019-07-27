@@ -12,6 +12,7 @@ module Cnoidal.Music (
     
     -- * Melody
     Pitch, middleC, c4, pitch, pitches, dore,
+    Pitch, middleC, c4, octave, pitch, pitches, dore,
     Note, IsNote(..), silence, with,
     
     -- * Bass
@@ -122,6 +123,10 @@ type Pitch = Int
 middleC, c4 :: Pitch
 middleC = 60
 c4      = middleC
+
+-- | An 'octve' has @12@ semitones.
+octave :: Pitch
+octave = 12
 
 -- | Movable do notation.
 dore :: Map String Pitch
