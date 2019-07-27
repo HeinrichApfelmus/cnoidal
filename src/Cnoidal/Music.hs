@@ -28,7 +28,6 @@ import qualified Data.Char      as Char
 import qualified Data.List      as Data
 import qualified Data.Map       as M
 import           Data.Map               (Map, (!))
-import           Data.Monoid            ((<>))
 import qualified Data.Ord       as Data
 
 import           Cnoidal.Media  as C

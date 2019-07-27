@@ -7,7 +7,7 @@ module Cnoidal.Media  (
     -- * Time and Intervals
     Time,
     Interval, start, end, earlier, later, intersection, intersect, disjoint,
-    
+
     -- * Temporal Media
     Media, duration, toIntervals, fromInterval, fromList,
     filter, filterJust, slow, hasten,
@@ -15,12 +15,15 @@ module Cnoidal.Media  (
     polyphony, bind,
     envelope,
     trim, cut,
+
+    module Control.Applicative,
+    module Data.Semigroup
     ) where
 
 import           Prelude           hiding (filter)
 import qualified Data.List         as List
 import           Data.Maybe
-import           Data.Monoid
+import           Data.Semigroup
 import           Data.Ord             (comparing)
 import           Data.Ratio
 import           Data.String
@@ -195,11 +198,15 @@ instance Alternative Media where
         = Media (maxMaybe dx dy) $ List.sortBy (comparing (fst.fst)) $ xs ++ ys
 
 -- | Sequential composition.
-instance Monoid (Media a) where
-    mempty = Media (Just 0) []
-    mappend x@(Media dx xs) (Media dy ys) = case dx of
+instance Semigroup (Media a) where
+    (<>) x@(Media dx xs) (Media dy ys) = case dx of
         Nothing -> x
         Just dx -> Media (fmap (+dx) dy) (xs ++ mapTimes_ (+dx) ys)
+
+-- | Sequential composition.
+instance Monoid (Media a) where
+    mempty  = Media (Just 0) []
+    mappend = (<>)
 
 {-----------------------------------------------------------------------------
   Helper functions
