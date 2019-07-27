@@ -15,7 +15,7 @@
     },
     {
       "cell_type": "code",
-      "source": "ensemble <- newEnsemble s\ndrums    <- newPlayer 10\npad      <- newPlayer 1\npiano    <- newPlayer 2\nsetTempoBpm ensemble 110\ntogether ensemble [drums, pad, piano]\naddFinalizerSession $ dissolve ensemble"
+      "source": "ensemble <- newEnsemble s\ndrums    <- newPlayer 10\nbass     <- newPlayer 1\npad      <- newPlayer 2\npiano    <- newPlayer 3\nsetTempoBpm ensemble 110\ntogether ensemble [drums, bass, pad, piano]\naddFinalizerSession $ dissolve ensemble"
     },
     {
       "cell_type": "code",
@@ -36,6 +36,18 @@
     {
       "cell_type": "code",
       "source": "play drums $ empty"
+    },
+    {
+      "cell_type": "text",
+      "source": "Bass\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "play bass $\n   (fromList $ pitches \"a2 F2 C2 G2\") <*\n   (hasten 16 $ beat $ concat $ replicate (4*8) $ \"x,\")"
+    },
+    {
+      "cell_type": "code",
+      "source": "play bass $ empty"
     },
     {
       "cell_type": "text",
@@ -75,7 +87,7 @@
     },
     {
       "cell_type": "code",
-      "source": "let q1 = map (+2*12) $ map pitch $ words \"c5 g e d c5 g a\"\nlet q2 = map (+1*12) $ map pitch $ words \"c5 d a d a b e\"\nplay piano $ hasten 4 $ fromList q1 <|> fromList q2"
+      "source": "let q1 = map (+2*12) $ pitches \"c5 g e d c5 g a\"\nlet q2 = map (+1*12) $ pitches words \"c5 d a d a b e\"\nplay piano $ hasten 4 $ fromList q1 <|> fromList q2"
     },
     {
       "cell_type": "code",

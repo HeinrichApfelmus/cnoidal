@@ -9,10 +9,13 @@ module Cnoidal.Music (
     bd, sn, rim, hh, chh, ohh, crash,
     
     -- * Melody
-    Pitch, pitch, dore,
+    Pitch, pitch, pitches, dore,
+    
+    -- * Bass
+    root, roots,
     
     -- * Harmony
-    Chord, chords, chord, voicelead,
+    Chord, chord, chords, voicelead,
     ) where
 
 import           Control.Monad
@@ -110,6 +113,10 @@ associate xs ys = M.fromList $ zip (words xs) ys
 pitch :: String -> Pitch
 pitch = fst . pitchP
 
+-- | Apply 'pitch' to a list of note names that are separated by whitespace.
+pitches :: String -> [Pitch]
+pitches = map pitch . words
+
 -- | Parse pitch name.
 pitchP :: String -> (Pitch, String)
 pitchP = name middleC
@@ -144,10 +151,6 @@ instance IsString (Media (Maybe Pitch)) where
 -- | A 'Chord' is a collection of pitches, to be played at the same time.
 type Chord   = [Pitch]
 
--- | Apply 'chord' to a list of chord notations.
-chords :: String -> [Chord]
-chords = map chord . words
-
 -- | Map Jazz chord notation into list of absolute pitches.
 chord :: String -> Chord
 chord s = case pitchP s of
@@ -156,6 +159,19 @@ chord s = case pitchP s of
           "m" -> "do me so"
     where
     notes = map (dore !) . words
+
+-- | Apply 'chord' to a list of chord notations that are separated by whitespace.
+chords :: String -> [Chord]
+chords = map chord . words
+
+-- | Return root note for Jazz chord notation.
+root :: String -> Pitch
+root s = case pitchP s of (x,_) -> x
+
+-- | Apply 'root' to a list of chord notations that are separated by whitespace.
+roots :: String -> [Pitch]
+roots = map root . words
+
 
 -- | Use voice lead
 voicelead :: [Chord] -> [Chord]
