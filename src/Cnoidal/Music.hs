@@ -11,8 +11,8 @@ module Cnoidal.Music (
     bd, sn, rim, hh, chh, ohh, crash,
     
     -- * Melody
-    Pitch, middleC, c4, pitch, pitches, dore,
     Pitch, middleC, c4, octave, pitch, pitches, dore,
+    Scale, at, major, minor, majorPenta, minorPenta,
     Note, IsNote(..), silence, with,
     
     -- * Bass
@@ -165,6 +165,22 @@ pitchP = name middleC
     octaves = associate "0 1 2 3 4 5 6 7 8" [ 12*(y-4) | y <- [0..8] ]
     sharps  = associate "# b" [1,-1]
     names   = associate "c d e f g a b" [0,2,4,5,7,9,11]
+
+-- | A 'Scale' represents a musical scale as a list of semitones relative
+-- to the root note.
+type Scale = [Pitch]
+
+major, minor, majorPenta, minorPenta :: Scale
+major = [0,2,4,5,7,9,11]
+minor = [0,2,3,5,7,8,10]
+majorPenta = [0,2,4,7,9]
+minorPenta = [0,3,5,7,10]
+
+-- | Retrieve the 'Pitch' of a scale note.
+-- The scale repeats at every octave.
+at :: Scale -> Int -> Pitch
+at scale k = octave*q + (scale !! r)
+    where (q,r) = (k-1) `divMod` length scale
 
 
 -- | A 'Note' informs the sound that an instrument makes when struck.

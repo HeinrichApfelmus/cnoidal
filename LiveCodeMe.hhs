@@ -15,7 +15,7 @@
     },
     {
       "cell_type": "code",
-      "source": "ensemble <- newEnsemble s\ndrums    <- newPlayer 10\nbass     <- newPlayer 1\npad      <- newPlayer 2\nkeys     <- newPlayer 3\nsetTempoBpm ensemble 110\ntogether ensemble [drums, bass, pad, keys]\naddFinalizerSession $ dissolve ensemble"
+      "source": "ensemble <- newEnsemble s\ndrums    <- newPlayer 10\nbass     <- newPlayer 1\npad      <- newPlayer 2\nkeys     <- newPlayer 3\nlead     <- newPlayer 4\nsetTempoBpm ensemble 110\ntogether ensemble [drums, bass, pad, keys, lead]\naddFinalizerSession $ dissolve ensemble"
     },
     {
       "cell_type": "code",
@@ -27,7 +27,7 @@
     },
     {
       "cell_type": "code",
-      "source": "play drums $ hasten 4 $ fromList [bd,sn,bd,sn]\n[bd, sn, chh, ohh]"
+      "source": "play drums $ hasten 4 $\n        (with bd <$> hasten 2 (beat \"X,,xX,,x\"))\n    <|> (with sn <$> beat \",x,x\")\n    <|> (with chh <$> (hasten 4 $ beat $ times (2*4) \"Xx\"))\n[bd, sn, chh, ohh]"
     },
     {
       "cell_type": "code",
@@ -43,7 +43,11 @@
     },
     {
       "cell_type": "code",
-      "source": "play bass $\n   (fromList $ pitches \"a2 F2 c2 G2\") <*\n   (hasten 16 $ beat $ concat $ replicate (4*8) $ \"x.\")"
+      "source": "play bass $\n    with <$> (fromList $ pitches \"a2 f2 c2 g2\") <*>\n    (hasten 8 $ beat $ times 4 \"Xxx.Xx.x\")"
+    },
+    {
+      "cell_type": "code",
+      "source": "play bass $\n   (fromList $ pitches \"a2 F2 c2 G2\") <*\n   (hasten 16 $ beat $ times (4*8) $ \"X,\")"
     },
     {
       "cell_type": "code",
@@ -83,7 +87,7 @@
     },
     {
       "cell_type": "code",
-      "source": "let arpeggio xs = hasten 32 $ fromList $ concat $ replicate 16 $ xs ++ tail (reverse xs)\nplay keys $ (fromList $ chords \"am F C G\") `bind` arpeggio"
+      "source": "let arpeggio xs = hasten 32 $ fromList $ times 16 $ xs ++ tail (reverse xs)\nplay keys $ (fromList $ chords \"am F C G\") `bind` arpeggio"
     },
     {
       "cell_type": "text",
@@ -91,7 +95,7 @@
     },
     {
       "cell_type": "code",
-      "source": "let q1 = map (+2*12) $ pitches \"c5 g e d c5 g a\"\nlet q2 = map (+1*12) $ pitches \"c5 d a d a b e\"\nplay keys $ hasten 4 $ fromList q1 <|> fromList q2"
+      "source": "let q1 = map (+2*octave) $ pitches \"c5 g e d c5 g a\"\nlet q2 = map (+1*octave) $ pitches \"c5 d a d a b e\"\nplay keys $ hasten 4 $ fromList q1 <|> fromList q2"
     },
     {
       "cell_type": "code",
@@ -99,7 +103,23 @@
     },
     {
       "cell_type": "text",
+      "source": "Lead\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "play lead $ hasten 4 $ fromList $ map (pitch \"a4\" +) minorPenta"
+    },
+    {
+      "cell_type": "code",
+      "source": "play lead $ hasten 4 $ fromList $ map (pitch \"a4\" +)\n    $ map (minorPenta `at`) [1,2,3,4,5,4,2::Int]"
+    },
+    {
+      "cell_type": "text",
       "source": "Exit everything.\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "play lead $ silence"
     },
     {
       "cell_type": "code",
@@ -111,7 +131,7 @@
     }
   ],
   "extensions": "OverloadedStrings",
-  "importModules": "import Cnoidal\nimport Control.Applicative\nimport qualified Data.Map",
+  "importModules": "import Cnoidal",
   "loadFiles": "src/Cnoidal.hs",
   "settings": {
     "packageTool": "stack",
