@@ -15,7 +15,7 @@
     },
     {
       "cell_type": "code",
-      "source": "ensemble <- newEnsemble s\ndrums    <- newPlayer 10\nbass     <- newPlayer 1\npad      <- newPlayer 2\npiano    <- newPlayer 3\nsetTempoBpm ensemble 110\ntogether ensemble [drums, bass, pad, piano]\naddFinalizerSession $ dissolve ensemble"
+      "source": "ensemble <- newEnsemble s\ndrums    <- newPlayer 10\nbass     <- newPlayer 1\npad      <- newPlayer 2\nkeys     <- newPlayer 3\nsetTempoBpm ensemble 110\ntogether ensemble [drums, bass, pad, keys]\naddFinalizerSession $ dissolve ensemble"
     },
     {
       "cell_type": "code",
@@ -31,11 +31,11 @@
     },
     {
       "cell_type": "code",
-      "source": "let pat1 = hasten 16 $ beat \"x,,, ,,x, x,,, ,,,x\"\nlet pat2 = hasten  8 $ beat \",,x, ,,x,\"\nlet pat3 = hasten  8 $ beat \",x,x ,x,x\"\nplay drums $\n        (bd  <$ pat1)\n    <|> (sn  <$ pat2)\n    -- <|> (chh <$ pat3)"
+      "source": "let pat1 = hasten 16 $ beat \"x,x, ,,X, ,,x, x,,x\"\nlet pat2 = hasten  8 $ beat \",,x, ,,x,\"\nlet pat3 = hasten  8 $ beat \",X,x ,X,x\"\nplay drums $\n        (with bd <$> pat1)\n    <|> (with sn <$> pat2)\n    <|> (with hh <$> pat3)"
     },
     {
       "cell_type": "code",
-      "source": "play drums $ empty"
+      "source": "play drums $ silence"
     },
     {
       "cell_type": "text",
@@ -43,11 +43,11 @@
     },
     {
       "cell_type": "code",
-      "source": "play bass $\n   (fromList $ pitches \"a2 F2 C2 G2\") <*\n   (hasten 16 $ beat $ concat $ replicate (4*8) $ \"x,\")"
+      "source": "play bass $\n   (fromList $ pitches \"a2 F2 c2 G2\") <*\n   (hasten 16 $ beat $ concat $ replicate (4*8) $ \"x.\")"
     },
     {
       "cell_type": "code",
-      "source": "play bass $ empty"
+      "source": "play bass $ silence"
     },
     {
       "cell_type": "text",
@@ -63,7 +63,7 @@
     },
     {
       "cell_type": "code",
-      "source": "play pad $ empty"
+      "source": "play pad $ silence"
     },
     {
       "cell_type": "text",
@@ -71,15 +71,19 @@
     },
     {
       "cell_type": "code",
-      "source": "let mychords = polyphony $ fromList $ chords \"am F C G\"\nlet rhythm   = mconcat   $ replicate 4 campfire\nlet pattern1 = mychords <* rhythm\nplay piano $ pattern1"
+      "source": "let mychords = polyphony $ fromList $ chords \"am F C G\"\nlet rhythm   = mconcat   $ replicate 4 campfire\nlet pattern1 = mychords <* rhythm\nplay keys $ pattern1"
     },
     {
       "cell_type": "code",
-      "source": "let pattern1 = (fromList $ chords \"am F C G\") `bind` (<$ campfire)\nplay piano $ polyphony $ pattern1"
+      "source": "let pattern1 = (fromList $ chords \"am F C G\") `bind` (<$ campfire)\nplay keys $ polyphony $ pattern1"
     },
     {
       "cell_type": "code",
-      "source": "play piano $ polyphony $ fromList $ chords \"am F C G\""
+      "source": "play keys $ polyphony $ fromList $ chords \"am F C G\""
+    },
+    {
+      "cell_type": "code",
+      "source": "let arpeggio xs = hasten 32 $ fromList $ concat $ replicate 16 $ xs ++ tail (reverse xs)\nplay keys $ (fromList $ chords \"am F C G\") `bind` arpeggio"
     },
     {
       "cell_type": "text",
@@ -87,11 +91,11 @@
     },
     {
       "cell_type": "code",
-      "source": "let q1 = map (+2*12) $ pitches \"c5 g e d c5 g a\"\nlet q2 = map (+1*12) $ pitches words \"c5 d a d a b e\"\nplay piano $ hasten 4 $ fromList q1 <|> fromList q2"
+      "source": "let q1 = map (+2*12) $ pitches \"c5 g e d c5 g a\"\nlet q2 = map (+1*12) $ pitches \"c5 d a d a b e\"\nplay keys $ hasten 4 $ fromList q1 <|> fromList q2"
     },
     {
       "cell_type": "code",
-      "source": "play piano $ empty"
+      "source": "play keys $ silence"
     },
     {
       "cell_type": "text",

@@ -60,7 +60,7 @@ closeMidi = terminate
 -- | A 'Player' repeats a piece of music, which can be changed on the fly.
 data Player = Player
     { pChannel :: Int
-    , pNotes   :: IORef (Musicbox Pitch)
+    , pNotes   :: IORef (Musicbox Note)
     }
 
 -- | A collection of musical notes, grouped by measures.
@@ -81,7 +81,7 @@ forwardToInteger x = if r == 0 then q else q + 1
     where (q,r) = numerator x `divMod` denominator x
 
 -- | Retrieve current measure to be played.
-getMeasure :: Player -> IO [(Interval, Pitch)]
+getMeasure :: Player -> IO [(Interval, Note)]
 getMeasure = fmap (\xs -> if null xs then [] else head xs) . readIORef . pNotes
 
 -- | Advance the measure to be played and retrieve the current one.
@@ -99,9 +99,11 @@ newPlayer channel = do
     notes <- newIORef []
     return $ Player { pChannel = channel, pNotes = notes }
 
+
 -- | Set the piece for a 'Player' to play, beginning at the next full measure.
-play :: Player -> Media Pitch -> IO ()
-play p = writeIORef (pNotes p) . fromMediaCycle
+play :: IsNote a => Player -> Media a -> IO ()
+play p = writeIORef (pNotes p) . fromMediaCycle . fmap toNote
+
 
 {-----------------------------------------------------------------------------
     Ensemble
@@ -128,12 +130,12 @@ newEnsemble out = do
     playNotes      t bpm = -- see Note [Midi.writeEvents]
         Midi.writeEvents out . sortBy (comparing timestamp) . concatMap mkEvent
         where
-        mkEvent (t1, t2, (pitch, channel)) =
+        mkEvent (t1, t2, ((pitch, vel), channel)) =
             [ PMEvent { message = noteOn , timestamp = fromIntegral $ t + timePerMeasure t1 bpm }
             , PMEvent { message = noteOff, timestamp = fromIntegral $ t + timePerMeasure t2 bpm - 1 }
             ]
             where
-            noteOn  = encodeMsg $ PMMsg { status = 0x90 + fromIntegral channel - 1, data1 = fromIntegral pitch, data2 = 80 }
+            noteOn  = encodeMsg $ PMMsg { status = 0x90 + fromIntegral channel - 1, data1 = fromIntegral pitch, data2 = fromIntegral vel }
             noteOff = encodeMsg $ PMMsg { status = 0x80 + fromIntegral channel - 1, data1 = fromIntegral pitch, data2 =  0 }
 
 {- Note [Midi.writeEvent]
@@ -154,7 +156,7 @@ In particular, it may happen that the "note off" event appears after a new "note
 -}
 
 -- | Get the measure that the players are currently playing.
-nextMeasures :: [Player] -> IO [(Time, Time, (Pitch, Channel))]
+nextMeasures :: [Player] -> IO [(Time, Time, (Note, Channel))]
 nextMeasures = fmap concat . mapM measure
     where
     measure p = do

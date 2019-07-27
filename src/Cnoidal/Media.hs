@@ -10,7 +10,7 @@ module Cnoidal.Media  (
     
     -- * Temporal Media
     Media, duration, toIntervals, fromInterval, fromList,
-    filter, slow, hasten,
+    filter, filterJust, slow, hasten,
     shift, staircase,
     polyphony, bind,
     envelope,
@@ -107,6 +107,10 @@ envelope (Media _ xs) = (minimum (map (fst.fst) xs), maximum (map (snd.fst) xs))
 -- | Keep only those intervals where the value satisfies a predicate
 filter :: (a -> Bool) -> Media a -> Media a
 filter p (Media d xs) = Media d $ List.filter (p . snd) xs
+
+-- | Keep only those intervals whose value is `Just`.
+filterJust :: Media (Maybe a) -> Media a
+filterJust (Media d xs) = Media d $ [(t,x) | (t,Just x) <- xs]
 
 -- | Transform the interval times. 
 -- Do *not* export this function, as it can break the invariant.

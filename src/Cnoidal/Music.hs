@@ -1,8 +1,10 @@
+{-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 module Cnoidal.Music (
     -- * Synopsis
     -- | Data structures and functions for representing music.
     
     -- * Rhythm
+    Velocity, ppp, pp, piano, mp, fff, ff, forte, mf,
     Beat,
     quarter, quaver, beat, tim,
     campfire,
@@ -10,6 +12,7 @@ module Cnoidal.Music (
     
     -- * Melody
     Pitch, pitch, pitches, dore,
+    Note, IsNote(..), silence, with,
     
     -- * Bass
     root, roots,
@@ -19,6 +22,7 @@ module Cnoidal.Music (
     ) where
 
 import           Control.Monad
+import           Control.Applicative    (empty)
 
 import qualified Data.Char      as Char
 import qualified Data.List      as Data
@@ -42,9 +46,24 @@ example1 = (fromList $ chords "am F C G") <*
 {-----------------------------------------------------------------------------
     Rhythm
 ------------------------------------------------------------------------------}
--- | A rhythm is about the timing of notes.
---   The values are unimportant, so we use the unit type '()'.
-type Beat = Media ()
+-- | MIDI velocity. Ranges from `0` (softest) to `127` (loudest).
+type Velocity = Int
+
+-- | Common interpretation of musical dynamics in terms of MIDI velocities,
+-- following MuseScore 3.0 .
+-- See also https://en.wikipedia.org/wiki/Dynamics_%28music%29
+--
+-- > ppp = 16   pp = 33   piano = 49  mp = 64
+-- > fff = 126  ff = 112  forte = 96  mf = 80
+--
+mf :: Velocity
+ppp, pp, piano, mp, fff, ff, forte :: Velocity
+[mf, ppp,pp,piano,mp, fff,ff,forte] = [80,16,33,49,64,126,112,96]
+
+-- | A rhythm, or 'Beat', denotes the timing of sound events, e.g. strokes on a drum.
+-- However, the 'Velocity' of the strokes is also important,
+-- giving rise to accented beats.
+type Beat = Media Velocity
 
 quarter, quaver :: Time
 quarter = 1/4
@@ -60,18 +79,23 @@ tim = (hasten 16 . beat) <$> associate
 
 -- | Create a beat from a string.
 --
--- Example: @beat "x,,, x,,,"@
+-- Example: @beat "x,,X ,,,,"@
 --
--- Whitespace is removed. Each symbol has unit length.
--- The symbol @x@ corresponds to a beat. The other symbols correspond to silence.
+-- Whitespace is removed. Each symbol has unit length. The symbols are
+--
+-- > 'x' = mezzoforte
+-- > 'X' = forte
+--
+-- All other symbols correspond to silence.
 beat :: String -> Beat
-beat = fmap (const ()) . C.filter (== 'x')
-     . fromList . Prelude.filter (not . Char.isSpace)
+beat = C.filterJust . fromList . map f . Prelude.filter (not . Char.isSpace)
+     where
+     f 'x' = Just mf
+     f 'X' = Just forte
+     f _   = Nothing
 
 -- | Example rhythm.
 campfire = mconcat $ map (tim !) $ words "seerobbe giraffe seerobbe giraffe"
-
-fromQuavers = hasten 4 . fromList
 
 -- | Commonly used percussion instruments, as in the General MIDI standard.
 --
@@ -144,6 +168,31 @@ instance IsString (Media (Maybe Pitch)) where
         . fmap (fmap (+60)) . slow quarter . fromList
         . map (`M.lookup` dore) . words
 -}
+
+-- | A 'Note' informs the sound that an instrument makes when struck.
+-- Essentially, it combines pitch and velocity.
+--
+-- In colloquial usage, the term `note` often includes the duration of the sound as
+-- well, e.g. ``a quaver note``, but sometimes it does not,
+-- e.g. ``black note on the keyboard``.
+-- Here, we explicitly do /not/ include the duration.
+type Note = (Pitch, Velocity)
+
+-- | Convenience class for specifying 'Note' more readily.
+class IsNote a where
+    toNote :: a -> Note
+
+instance IsNote Note   where toNote   = id
+instance IsNote Pitch  where toNote p = (p, mf)
+instance IsNote String where toNote   = toNote . pitch
+
+-- | Synonym for 'empty' with a more specific type.
+silence :: Media Note
+silence = mempty
+
+-- | Merge a 'Pitch' and a 'Velocity' into a 'Note'.
+with :: Pitch -> Velocity -> Note
+with = curry id
 
 {-----------------------------------------------------------------------------
     Chords
