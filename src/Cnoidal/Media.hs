@@ -9,7 +9,7 @@ module Cnoidal.Media  (
     Interval, start, end, earlier, later, intersection, intersect, disjoint,
 
     -- * Temporal Media
-    Media, duration, toIntervals, fromInterval, fromList,
+    Media, duration, toIntervals, fromInterval, fromIntervals, fromList,
     filter, filterJust, flow,
     slow, hasten, shift, staircase,
     polyphony, bind,
@@ -102,6 +102,14 @@ fromList xs = Media (Just $ fromIntegral $ length xs)
 -- | Create 'Media' from a single 'Interval' and value.
 fromInterval :: (Interval, a) -> Media a
 fromInterval (t,x) = Media (end t) [(t,x)]
+
+-- | Create 'Media' from a duration and a list of 'Interval's with values.
+--
+-- Note: This function is provided to allow direct manipulation of 'Interval's
+-- in temporal media. In practice, chances are that the desired manipulation
+-- can already be expressed by combining other operations provided in this module.
+fromIntervals :: Maybe Time -> [(Interval, a)] -> Media a
+fromIntervals d = Media d . List.sortOn (start . fst)
 
 -- | Smallest interval that contains the whole Media
 envelope :: Media a -> Interval
