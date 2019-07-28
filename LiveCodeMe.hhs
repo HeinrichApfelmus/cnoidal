@@ -47,7 +47,7 @@
     },
     {
       "cell_type": "code",
-      "source": "play bass $\n   (fromList $ pitches \"a2 F2 c2 G2\") <*\n   (hasten 16 $ beat $ times (4*8) $ \"X,\")"
+      "source": "play bass $\n   (fromList $ pitches \"a2 F2 c2 G2\") <*\n   (hasten 16 $ beat $ times (4*8) $ \"x. x. x. xx\")"
     },
     {
       "cell_type": "code",

@@ -8,6 +8,7 @@ module Cnoidal.Music (
     Beat,
     quarter, quaver, beat, tim,
     campfire,
+    staccato, portato,
     bd, sn, rim, hh, chh, ohh, crash,
     
     -- * Melody
@@ -29,19 +30,10 @@ import qualified Data.Char      as Char
 import qualified Data.List      as Data
 import qualified Data.Map       as M
 import           Data.Map               (Map, (!))
+import qualified Data.Maybe     as Data
 import qualified Data.Ord       as Data
 
 import           Cnoidal.Media  as C
-
-{-----------------------------------------------------------------------------
-    Interesting patterns
-------------------------------------------------------------------------------}
-test :: Media String
-test = slow quarter $ fromList $ words "bd bd sd sn"
-
-example1 :: Media Chord
-example1 = (fromList $ chords "am F C G") <*
-    (bind (fromList $ replicate 4 $ campfire) id)
 
 {-----------------------------------------------------------------------------
     Rhythm
@@ -88,7 +80,7 @@ tim = (hasten 16 . beat) <$> associate
 --
 -- All other symbols correspond to silence.
 beat :: String -> Beat
-beat = C.filterJust . fromList . map f . Prelude.filter (not . Char.isSpace)
+beat = portato . C.filterJust . fromList . map f . Prelude.filter (not . Char.isSpace)
      where
      f 'x' = Just mf
      f 'X' = Just forte
@@ -96,6 +88,20 @@ beat = C.filterJust . fromList . map f . Prelude.filter (not . Char.isSpace)
 
 -- | Example rhythm.
 campfire = mconcat $ map (tim !) $ words "seerobbe giraffe seerobbe giraffe"
+
+-- | Shorten note durations to a 16th note.
+staccato :: Media a -> Media a
+staccato = mapIntervals $ \(t,s) ->
+    Data.fromJust $ intersection (t,s) (t,Just $ t + 1/16)
+
+-- | Slightly shorten note durations.
+portato :: Media a -> Media a
+portato = mapIntervals $ \(t,s) -> case s of
+    Nothing -> (t, Nothing)
+    Just s  -> if t < s-1/16 then (t, Just (s-1/16)) else (t, Just s)
+
+mapIntervals :: (Interval -> Interval) -> Media a -> Media a
+mapIntervals f m = fromIntervals (duration m) [(f t, a) | (t,a) <- toIntervals m]
 
 -- | Commonly used percussion instruments, as in the General MIDI standard.
 --

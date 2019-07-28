@@ -11,7 +11,7 @@ module Cnoidal.Media  (
     -- * Temporal Media
     Media, duration, toIntervals, fromInterval, fromIntervals, fromList,
     filter, filterJust, flow,
-    slow, hasten, shift, staircase,
+    slow, hasten, sustain, shift, staircase,
     polyphony, bind,
     envelope,
     trim, cut,
@@ -142,13 +142,24 @@ flowWith f xs (Media d ys) = Media d $ zipWith (\x (t,y) -> (t,f x y)) xs ys
 mapTimes_ :: (Time -> Time) -> [(Interval, a)] -> [(Interval, a)]
 mapTimes_ f xs = [ ((f t1, fmap f t2), x) | ((t1,t2),x) <- xs] 
 
--- | Multiply all times by a common factor, making the intervals longer.
+-- | Multiply all times by a common factor
+--
+-- This makes all intervals start later and increase all durations.
 slow :: Rational -> Media a -> Media a
 slow s (Media d xs) = Media (fmap (*s) d) $ mapTimes_ (*s) xs
 
--- | Divide all times by a common factor, making the intervals shorter.
+-- | Divide all times by a common factor.
+--
+-- This makes all intervals start earlier and decreases all durations.
 hasten :: Rational -> Media a -> Media a
 hasten s = slow (1/s)
+
+-- | Multiply all interval durations by a common factor.
+--
+-- This does not affect starting times or the total duration.
+sustain :: Rational -> Media a -> Media a
+sustain s (Media d xs) = Media d [((t1, fmap (f t1) s2), x) | ((t1,s2), x) <- xs]
+    where f t1 t2 = t1 + s*(t2 - t1)
 
 -- | Shift all times by a time difference.
 -- The assigned duration will *not* be shifted.
