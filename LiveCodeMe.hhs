@@ -47,7 +47,7 @@
     },
     {
       "cell_type": "code",
-      "source": "play bass $\n   (fromList $ pitches \"a2 F2 c2 G2\") <*\n   (hasten 16 $ beat $ times (4*8) $ \"x. x. x. xx\")"
+      "source": "play bass $\n   (fromList $ pitches \"a2 F2 c2 G2\") <*\n   (hasten 16 $ beat $ times (4*8) $ \"x_ x_ x. xx\")"
     },
     {
       "cell_type": "code",
@@ -87,7 +87,7 @@
     },
     {
       "cell_type": "code",
-      "source": "let arpeggio xs = hasten 32 $ fromList $ times 16 $ xs ++ tail (reverse xs)\nplay keys $ (fromList $ chords \"am F C G\") `bind` arpeggio"
+      "source": "let arpeggio xs = hasten 16 $ fromList $ times 8 $ xs ++ tail (reverse xs)\nplay keys $ staccato $ (fromList $ chords \"am F C G\") `bind` arpeggio"
     },
     {
       "cell_type": "text",
@@ -107,19 +107,19 @@
     },
     {
       "cell_type": "code",
-      "source": "play lead $ hasten 4 $ fromList $ map (pitch \"a4\" +) minorPenta"
+      "source": "play lead $ hasten 8 $ fromList $ map (pitch \"a4\" +) $\n    reverse minorPenta ++ minorPenta"
     },
     {
       "cell_type": "code",
-      "source": "play lead $ hasten 4 $ fromList $ map (pitch \"a4\" +)\n    $ map (minorPenta `at`) [1,2,3,4,5,4,2::Int]"
-    },
-    {
-      "cell_type": "text",
-      "source": "Exit everything.\n"
+      "source": "let a = [1,2,3,4,5] :: [Int]\nlet b = [6,5,6,7,6] :: [Int]\nlet c = [6,7,8,9,2,1] :: [Int]\nlet melody = map (pitch \"a4\" +) $ map (minorPenta `at`) (a ++ b ++ a ++ c)\nlet rhythm = hasten 16 $ times 2 $ beat \"x_x_ x_xx ,,,, ,,x_ x_x_ x_xx ,,,, ,,,,\"\nplay lead $ flow melody rhythm"
     },
     {
       "cell_type": "code",
       "source": "play lead $ silence"
+    },
+    {
+      "cell_type": "text",
+      "source": "Exit everything.\n"
     },
     {
       "cell_type": "code",

@@ -71,20 +71,29 @@ tim = (hasten 16 . beat) <$> associate
 
 -- | Create a beat from a string.
 --
--- Example: @beat "x,,X ,,,,"@
+-- Example: @beat "X_,, x_,x"@
 --
--- Whitespace is removed. Each symbol has unit length. The symbols are
+-- Whitespace is removed. Each symbol corresponds to unit length. The symbols are
 --
 -- > 'x' = mezzoforte
 -- > 'X' = forte
+-- > '_' = elongate interval for the previous symbol
 --
 -- All other symbols correspond to silence.
 beat :: String -> Beat
-beat = portato . C.filterJust . fromList . map f . Prelude.filter (not . Char.isSpace)
+beat xs = portato $ fromIntervals (Just $ fromIntegral $ length ys)
+        $ go Nothing $ zip [0..] ys
      where
-     f 'x' = Just mf
-     f 'X' = Just forte
-     f _   = Nothing
+     ys = Data.filter (not . Char.isSpace) xs
+     
+     go m                []           = maybe id (:) m $ []
+     go (Just ((t,_),a)) ((j,'_'):cs) = go (Just ((t,Just (j+1)),a)) cs
+     go m                ((j, c ):cs) = maybe id (:) m $
+         case vel c of
+             Just vel -> go (Just ((j,Just $ j+1),vel)) cs
+             Nothing  -> go Nothing cs
+     
+     vel 'x' = Just mf; vel 'X' = Just forte; vel _ = Nothing
 
 -- | Example rhythm.
 campfire = mconcat $ map (tim !) $ words "seerobbe giraffe seerobbe giraffe"

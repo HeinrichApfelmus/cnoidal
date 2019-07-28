@@ -7,7 +7,7 @@
     },
     {
       "cell_type": "code",
-      "source": "let pat1 = hasten 16 $ beat \"x,,, ,,,xx,,, ,x,,\"\n    pat2 = hasten  8 $ beat \",,x, ,,x,\"\n    pat3 = hasten  8 $ beat \",x,x ,x,x\"\ntimeline $ (bd  <$ pat1)\n    <|> (sn  <$ pat2)\n    <|> (chh <$ pat3)"
+      "source": "let pat1 = hasten 16 $ beat \"x,,, ,,,xx,,, ,x,,\"\n    pat2 = hasten  8 $ beat \",,x, ,,x,\"\n    pat3 = hasten  8 $ beat \",x_x ,X,x\"\ntimeline $ (bd  <$ pat1)\n    <|> (sn  <$ pat2)\n    <|> (chh <$ pat3)"
     },
     {
       "cell_type": "text",
