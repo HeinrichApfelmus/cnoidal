@@ -10,8 +10,8 @@ module Cnoidal.Media  (
 
     -- * Temporal Media
     Media, duration, toIntervals, fromInterval, fromList,
-    filter, filterJust, slow, hasten,
-    shift, staircase,
+    filter, filterJust, flow,
+    slow, hasten, shift, staircase,
     polyphony, bind,
     envelope,
     trim, cut,
@@ -87,6 +87,8 @@ data Media a = Media
     }
     -- Invariant: All starting times are >= 0.
     -- Invariant: Starting times of intervals appear in order
+    --
+    -- FIXME: Be more pedantic about invariants!
     deriving (Eq, Ord, Show)
 
 instance Functor Media where
@@ -114,6 +116,18 @@ filter p (Media d xs) = Media d $ List.filter (p . snd) xs
 -- | Keep only those intervals whose value is `Just`.
 filterJust :: Media (Maybe a) -> Media a
 filterJust (Media d xs) = Media d $ [(t,x) | (t,Just x) <- xs]
+
+-- | Align a list of values to a collection of intervals
+-- in order of increasing starting time.
+flow :: [a] -> Media some -> Media a
+flow = flowWith const
+
+-- | Align a list of values to a collection of intervals
+-- in order of increasing starting time.
+--
+-- FIXME: I think there is a 'Traversable' instance hidden in this.
+flowWith :: (a -> b -> c) -> [a] -> Media b -> Media c
+flowWith f xs (Media d ys) = Media d $ zipWith (\x (t,y) -> (t,f x y)) xs ys
 
 -- | Transform the interval times. 
 -- Do *not* export this function, as it can break the invariant.
