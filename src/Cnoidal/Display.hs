@@ -6,11 +6,9 @@ import qualified Data.Map         as Map
 
 import Diagrams.Prelude
 import Diagrams.Backend.SVG
-import qualified Graphics.Svg     as SVG
 
 import Hyper
-import qualified Data.Text        as T
-import qualified Data.Text.Lazy   as TL
+import Hyper.Extra                        (fromSvg)
 
 import Cnoidal.Media
 
@@ -20,9 +18,7 @@ type Dia = QDiagram SVG V2 Double Any
     Integrate `diagrams-svg` and `svg-builder` wiht HyperHaskell
 ------------------------------------------------------------------------------}
 dia :: Dia -> Graphic
-dia = html . TL.toStrict . SVG.renderText
-    . renderDia SVG (SVGOptions absolute Nothing (T.pack "") [] True)
-    -- (mkWidth 250)
+dia = fromSvg . renderDia SVG (SVGOptions absolute Nothing mempty [] True)
 
 {-----------------------------------------------------------------------------
     Display
