@@ -197,9 +197,11 @@ at :: Scale -> Integer -> Pitch
 at scale k = octave*q + (scale !! r)
     where (q,r) = (fromIntegral k-1) `divMod` length scale
 
--- | Retrieve the 'Pitches' of a scale.
-ats :: Scale -> [Int] -> [Pitch]
-ats s = map (s `at`)
+-- | Map collection of scale degrees to pitches
+--
+-- Note: The 'Integer' type wroks well with defaulting in interactive interpreters.
+ats :: Functor f => Scale -> f Integer -> f Pitch
+ats = fmap . at
 
 
 -- | A 'Note' informs the sound that an instrument makes when struck.
