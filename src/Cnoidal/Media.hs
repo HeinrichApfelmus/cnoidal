@@ -9,7 +9,7 @@ module Cnoidal.Media  (
     Interval, start, end, earlier, later, intersection, intersect, disjoint,
 
     -- * Temporal Media
-    Media, duration, toIntervals, fromInterval, fromIntervals, fromList,
+    Media, duration, toIntervals, fromInterval, fromIntervals, fromList, list,
     filter, filterJust, flow,
     slow, hasten, sustain, shift, staircase,
     polyphony, bind,
@@ -98,6 +98,10 @@ instance Functor Media where
 fromList :: [a] -> Media a
 fromList xs = Media (Just $ fromIntegral $ length xs)
     [((k,Just $ k+1),x) | (k,x) <- zip [0..] xs]
+
+-- | Shorter synonym for 'fromList'
+list :: [a] -> Media a
+list = fromList
 
 -- | Create 'Media' from a single 'Interval' and value.
 fromInterval :: (Interval, a) -> Media a
