@@ -193,9 +193,9 @@ minorPenta p = map (p+) [0,3,5,7,10]
 
 -- | Retrieve the 'Pitch' of a scale note.
 -- The scale repeats at every octave.
-at :: Scale -> Int -> Pitch
+at :: Scale -> Integer -> Pitch
 at scale k = octave*q + (scale !! r)
-    where (q,r) = (k-1) `divMod` length scale
+    where (q,r) = (fromIntegral k-1) `divMod` length scale
 
 -- | Retrieve the 'Pitches' of a scale.
 ats :: Scale -> [Int] -> [Pitch]
