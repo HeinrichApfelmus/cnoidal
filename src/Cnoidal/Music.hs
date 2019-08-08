@@ -185,11 +185,11 @@ pitchP = name middleC
 -- to the root note.
 type Scale = [Pitch]
 
-major, minor, majorPenta, minorPenta :: Scale
-major = [0,2,4,5,7,9,11]
-minor = [0,2,3,5,7,8,10]
-majorPenta = [0,2,4,7,9]
-minorPenta = [0,3,5,7,10]
+major, minor, majorPenta, minorPenta :: Pitch -> Scale
+major p = map (p+) [0,2,4,5,7,9,11]
+minor p = map (p+) [0,2,3,5,7,8,10]
+majorPenta p = map (p+) [0,2,4,7,9]
+minorPenta p = map (p+) [0,3,5,7,10]
 
 -- | Retrieve the 'Pitch' of a scale note.
 -- The scale repeats at every octave.
