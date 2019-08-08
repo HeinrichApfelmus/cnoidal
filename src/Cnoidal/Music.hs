@@ -13,7 +13,7 @@ module Cnoidal.Music (
     
     -- * Melody
     Pitch, middleC, c4, octave, pitch, pitches, dore,
-    Scale, at, major, minor, majorPenta, minorPenta,
+    Scale, at, ats, major, minor, majorPenta, minorPenta,
     Note, IsNote(..), silence, with,
     
     -- * Bass
@@ -196,6 +196,10 @@ minorPenta p = map (p+) [0,3,5,7,10]
 at :: Scale -> Int -> Pitch
 at scale k = octave*q + (scale !! r)
     where (q,r) = (k-1) `divMod` length scale
+
+-- | Retrieve the 'Pitches' of a scale.
+ats :: Scale -> [Int] -> [Pitch]
+ats s = map (s `at`)
 
 
 -- | A 'Note' informs the sound that an instrument makes when struck.
