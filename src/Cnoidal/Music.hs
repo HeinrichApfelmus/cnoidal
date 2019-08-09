@@ -63,7 +63,7 @@ quaver  = 1/8
 
 -- | Map rhythm words into their beats.
 tim :: Map String Beat
-tim = (hasten 16 . beat) <$> associate
+tim = beat 16 <$> associate
     "schwein eisbaer seerobbe schmetterling ringelnatter giraffe"
     "x... x.x. x.xx xx.x xxxx .xxx"
     where
@@ -80,8 +80,8 @@ tim = (hasten 16 . beat) <$> associate
 -- > '_' = elongate interval for the previous symbol
 --
 -- All other symbols correspond to silence.
-beat :: String -> Beat
-beat xs = portato $ fromIntervals (Just $ fromIntegral $ length ys)
+beat :: Int -> String -> Beat
+beat n xs = portato $ hasten (fromIntegral n) $ fromIntervals (Just $ fromIntegral $ length ys)
         $ go Nothing $ zip [0..] ys
      where
      ys = Data.filter (not . Char.isSpace) xs
