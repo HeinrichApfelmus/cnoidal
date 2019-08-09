@@ -1,0 +1,101 @@
+{
+  "version": "0.2.1.0",
+  "cells": [
+    {
+      "cell_type": "text",
+      "source": "How to play sound in Haskell?\n\nConnect to a MIDI output device (e.g. Fluidsynth).\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "s <- openMidi\naddFinalizerSession $ closeMidi >>= print\nshow s"
+    },
+    {
+      "cell_type": "text",
+      "source": "Create an ensemble and players.\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "ensemble <- newEnsemble s\ndrums    <- newPlayer 10\nbass     <- newPlayer 1\npad      <- newPlayer 2\nkeys     <- newPlayer 3\nlead     <- newPlayer 4\nsetTempoBpm ensemble 110\ntogether ensemble [drums, bass, pad, keys, lead]\naddFinalizerSession $ dissolve ensemble"
+    },
+    {
+      "cell_type": "text",
+      "source": "Drums\n"
+    },
+    {
+      "cell_type": "code",
+      "source": ""
+    },
+    {
+      "cell_type": "code",
+      "source": "play drums $ silence"
+    },
+    {
+      "cell_type": "text",
+      "source": "Bass\n"
+    },
+    {
+      "cell_type": "code",
+      "source": ""
+    },
+    {
+      "cell_type": "code",
+      "source": "play bass $ silence"
+    },
+    {
+      "cell_type": "text",
+      "source": "Pad\n"
+    },
+    {
+      "cell_type": "code",
+      "source": ""
+    },
+    {
+      "cell_type": "code",
+      "source": "play pad $ silence"
+    },
+    {
+      "cell_type": "text",
+      "source": "Keys\n"
+    },
+    {
+      "cell_type": "code",
+      "source": ""
+    },
+    {
+      "cell_type": "code",
+      "source": "play keys $ silence"
+    },
+    {
+      "cell_type": "text",
+      "source": "Lead\n"
+    },
+    {
+      "cell_type": "code",
+      "source": ""
+    },
+    {
+      "cell_type": "code",
+      "source": "play lead $ silence"
+    },
+    {
+      "cell_type": "text",
+      "source": "Exit everything.\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "dissolve ensemble"
+    },
+    {
+      "cell_type": "code",
+      "source": "show `fmap` closeMidi"
+    }
+  ],
+  "extensions": "OverloadedStrings",
+  "importModules": "import Cnoidal",
+  "loadFiles": "src/Cnoidal.hs",
+  "settings": {
+    "packageTool": "stack",
+    "packagePath": "../hyper-haskell/haskell/stack.yaml",
+    "searchPath": "src"
+  }
+}
