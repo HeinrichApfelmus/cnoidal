@@ -12,7 +12,7 @@ module Cnoidal.Music (
     bd, sn, rim, hh, chh, ohh, crash,
     
     -- * Melody
-    Pitch, middleC, c4, octave, pitch, p, pitches, dore,
+    Pitch, middleC, c4, octave, pitch, p, pitches, dore, dores,
     Scale, at, ats, major, minor, majorPenta, minorPenta,
     Note, IsNote(..), silence, with,
     
@@ -151,6 +151,10 @@ dore = associate "do re mi fa so la ti" [0,2,4,5,7,9, 11]
 
 associate :: String -> [a] -> Map String a
 associate xs ys = M.fromList $ zip (words xs) ys
+
+-- | Read a list of `movable do` that are separated by whitespace.
+dores :: String -> [Pitch]
+dores s = [p | x <- words s, Just p <- [M.lookup x dore]]
 
 -- | Map a pitch name to 'Pitch'.
 pitch :: String -> Pitch
