@@ -212,6 +212,10 @@ bind (Media d xs) g =  Media d $ concat [ y | Media _ y <- ys ]
     where
     ys = [ trim dt $ shift_ (start dt) (g a) | (dt,a) <- xs ]
 
+-- | Synonym for 'bind' with arguments flipped.
+adorn :: (a -> Media b) -> Media a -> Media b
+adorn = flip bind
+
 -- | Turn lists of values into multiple intervals.
 polyphony :: Media [a] -> Media a
 polyphony (Media d xs) = Media d [(t,a) | (t,as) <- xs, a <- as]
