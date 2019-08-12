@@ -7,7 +7,7 @@ module Cnoidal.Music (
     -- * Rhythm
     Velocity, ppp, pp, piano, mp, fff, ff, forte, mf,
     Beat,
-    quarter, quaver, beat, tim,
+    quarter, quaver, beat, durations, tim,
     campfire,
     staccato, portato,
     bd, sn, rim, hh, chh, ohh, crash,
@@ -86,10 +86,10 @@ tim = beat 16 <$> associate
 --
 -- All other symbols correspond to silence.
 beat :: Int -> String -> Beat
-beat n xs = portato $ hasten (fromIntegral n) $ fromIntervals (Just $ fromIntegral $ length ys)
-        $ go Nothing $ zip [0..] ys
+beat n xs = portato $ hasten (fromIntegral n) $ fromIntervals dur $ go Nothing $ zip [0..] ys
      where
-     ys = Data.filter (not . Char.isSpace) xs
+     ys  = Data.filter (not . Char.isSpace) xs
+     dur = Just $ fromIntegral $ length ys
      
      go m                []           = maybe id (:) m $ []
      go (Just ((t,_),a)) ((j,'_'):cs) = go (Just ((t,Just (j+1)),a)) cs
@@ -99,6 +99,15 @@ beat n xs = portato $ hasten (fromIntegral n) $ fromIntervals (Just $ fromIntegr
              Nothing  -> go Nothing cs
      
      vel 'x' = Just mf; vel 'X' = Just forte; vel _ = Nothing
+
+-- | Create a beat from a sequence of note lengths (measured in quavers)
+--
+-- > beat 8 "x__ x__ x_" = portato (durations [3,3,2])
+durations :: [Integer] -> Beat
+durations xs = hasten 8 $ fromIntervals dur $ map (\i -> (i,mf)) $ zip ts (map Just $ tail ts)
+    where
+    dur = Just $ fromIntegral (sum xs)
+    ts  = map fromIntegral $ Data.scanl (+) 0 xs
 
 -- | Example rhythm.
 campfire = mconcat $ map (tim !) $ words "seerobbe giraffe seerobbe giraffe"
