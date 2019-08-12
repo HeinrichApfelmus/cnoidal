@@ -1,4 +1,5 @@
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
+{-# LANGUAGE TupleSections #-}
 module Cnoidal.Music (
     -- * Synopsis
     -- | Data structures and functions for representing music.
@@ -15,7 +16,11 @@ module Cnoidal.Music (
     Pitch, middleC, c4, octave, pitch, p, pitches, dore, dores,
     Scale, at, ats, major, minor, majorPenta, minorPenta, pentatonic,
     Note, IsNote(..), silence, with,
-    
+
+    -- * Arpeggios and embellishments
+    -- | Use 'adorn' to apply embellishments.
+    up, down, echo, mordent,
+
     -- * Bass
     root, roots,
     
@@ -222,6 +227,9 @@ ats = fmap . at
 -- Here, we explicitly do /not/ include the duration.
 type Note = (Pitch, Velocity)
 
+velocity :: Note -> Velocity
+velocity (p,v) = v
+
 -- | Convenience class for specifying 'Note' more readily.
 class IsNote a where
     toNote :: a -> Note
@@ -237,6 +245,33 @@ silence = mempty
 -- | Merge a 'Pitch' and a 'Velocity' into a 'Note'.
 with :: Pitch -> Velocity -> Note
 with = curry id
+
+{-----------------------------------------------------------------------------
+    Arpeggios
+------------------------------------------------------------------------------}
+-- | Arpeggiate a chord, going from low to high notes.
+up :: Chord -> Media Pitch
+up   = hasten 8 . list . Data.sort
+
+-- | Arpeggiate a chord, going from high to low notes.
+down :: Chord -> Media Pitch
+down = hasten 8 . list . reverse . Data.sort
+
+-- | Echo: Repeat the same note with decreasing velocities for one measure.
+--
+-- The first argument gives the number of repeats.
+echo :: IsNote a => Int -> a -> Media Note
+echo n x = hasten (fromIntegral n) $ list
+    $ map (p,) $ map floor $ linspace (fromIntegral v) 0 n
+    where (p,v) = toNote x
+
+linspace :: Fractional a => a -> a -> Int -> [a]
+linspace x y n = [ x + (y-x)*t | j <- [0..n-1]
+                 , let t = fromIntegral j / fromIntegral (n-1)]
+
+-- | Mordent embellishment that goes up a whole tone for a 32th.
+mordent :: Pitch -> Media Pitch
+mordent x = hasten 32 (list [x,x+2]) <> pure x
 
 {-----------------------------------------------------------------------------
     Chords
