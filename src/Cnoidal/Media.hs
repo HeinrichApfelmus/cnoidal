@@ -12,7 +12,7 @@ module Cnoidal.Media  (
     Media, duration, toIntervals, fromInterval, fromIntervals, fromList, list,
     filter, filterJust, flow,
     slow, hasten, sustain, shift, staircase,
-    polyphony, bind,
+    polyphony, bind, adorn,
     envelope,
     trim, cut,
 
