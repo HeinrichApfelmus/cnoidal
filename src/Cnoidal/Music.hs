@@ -13,7 +13,7 @@ module Cnoidal.Music (
     
     -- * Melody
     Pitch, middleC, c4, octave, pitch, p, pitches, dore, dores,
-    Scale, at, ats, major, minor, majorPenta, minorPenta,
+    Scale, at, ats, major, minor, majorPenta, minorPenta, pentatonic,
     Note, IsNote(..), silence, with,
     
     -- * Bass
