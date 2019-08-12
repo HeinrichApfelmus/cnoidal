@@ -163,12 +163,30 @@ dore = associate "do re mi fa so la ti" [0,2,4,5,7,9, 11]
     <> associate "di ri    fi si li   " [1,3,  6,8,10]
     <> associate "   ra me    se le te" [  1,3,  6,8, 10]
 
+-- | Associate string keys (separated by spaces) to values
 associate :: String -> [a] -> Map String a
 associate xs ys = M.fromList $ zip (words xs) ys
 
+octaves = associate "0 1 2 3 4 5 6 7 8" [ 12*(y-4) | y <- [0..8] ]
+sharps  = associate "# b" [1,-1]
+names   = associate "c d e f g a b" [0,2,4,5,7,9,11]
+
+
 -- | Read a list of `movable do` that are separated by whitespace.
 dores :: String -> [Pitch]
-dores s = [p | x <- words s, Just p <- [M.lookup x dore]]
+dores = map (fst . doreP) . words
+
+-- | Parse moveable do.
+doreP :: String -> (Pitch, String)
+doreP = name 0
+    where
+    name x s = case M.lookup (take 2 s) dore of
+        Just y  -> octave (x+y) (drop 2 s)
+        Nothing -> octave x     (drop 2 s)
+    octave  x []     = (x, "")
+    octave  x (c:cs) = case M.lookup [c] octaves of
+        Nothing -> (x, c:cs)
+        Just d  -> (x+d, cs)
 
 -- | Map a pitch name to 'Pitch'.
 pitch :: String -> Pitch
@@ -198,10 +216,6 @@ pitchP = name middleC
     octave  x (c:cs) = case M.lookup [c] octaves of
         Nothing -> (x, c:cs)
         Just d  -> (x+d, cs)
-
-    octaves = associate "0 1 2 3 4 5 6 7 8" [ 12*(y-4) | y <- [0..8] ]
-    sharps  = associate "# b" [1,-1]
-    names   = associate "c d e f g a b" [0,2,4,5,7,9,11]
 
 -- | A 'Scale' represents a musical scale as a list of semitones relative
 -- to the root note.
