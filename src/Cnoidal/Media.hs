@@ -32,8 +32,6 @@ import           Data.String
 import Control.Applicative
 import Control.Monad
 
-import Data.IORef
-
 {-----------------------------------------------------------------------------
     Time
 ------------------------------------------------------------------------------}

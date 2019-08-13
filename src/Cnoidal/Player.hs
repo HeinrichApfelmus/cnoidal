@@ -22,15 +22,15 @@ module Cnoidal.Player (
     setTempoBpm,
     ) where
 
-import Control.Applicative
-import Control.Concurrent   (threadDelay, ThreadId, killThread, forkIO)
-import Control.Exception
-import Control.Monad        (void, join)
-import Data.IORef
-import Data.List            (sortBy)
-import Data.Maybe           (maybe)
-import Data.Ord             (comparing)
-import Data.Ratio
+import           Control.Applicative
+import           Control.Concurrent   (threadDelay, ThreadId, killThread, forkIO)
+import           Control.Exception
+import           Control.Monad        (void, join)
+import           Data.IORef
+import qualified Data.List
+import           Data.Maybe           (maybe)
+import           Data.Ord             (comparing)
+import           Data.Ratio
 
 import Sound.PortMidi as Midi
 
@@ -71,10 +71,10 @@ type Musicbox a = [[(Interval, a)]]
 fromMediaCycle :: Media a -> Musicbox a
 fromMediaCycle media = mycycle $ map (measure . fromIntegral) [0..len-1]
     where
-    mycycle xs = if null xs then [] else cycle xs
     measure t = [ ((subtract t t1, (subtract t) `fmap` s2), a)
                 | ((t1,s2),a) <- toIntervals media, t <= t1, t1 < t+1]
     len   = forwardToInteger $ maybe 1 id (duration media)
+    mycycle xs = if null xs then [] else Data.List.cycle xs
 
 forwardToInteger :: Time -> Integer
 forwardToInteger x = if r == 0 then q else q + 1
@@ -128,7 +128,7 @@ newEnsemble out = do
     where
     timePerMeasure t bpm = round $ t * (4 / bpm) * 60 * 1000
     playNotes      t bpm = -- see Note [Midi.writeEvents]
-        Midi.writeEvents out . sortBy (comparing timestamp) . concatMap mkEvent
+        Midi.writeEvents out . Data.List.sortBy (comparing timestamp) . concatMap mkEvent
         where
         mkEvent (t1, t2, ((pitch, vel), channel)) =
             [ PMEvent { message = noteOn , timestamp = fromIntegral $ t + timePerMeasure t1 bpm }
