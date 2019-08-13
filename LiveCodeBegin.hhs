@@ -15,7 +15,7 @@
     },
     {
       "cell_type": "code",
-      "source": "ensemble <- newEnsemble s\ndrums    <- newPlayer 10\nbass     <- newPlayer 1\npad      <- newPlayer 2\nkeys     <- newPlayer 3\nlead     <- newPlayer 4\nsetTempoBpm ensemble 110\ntogether ensemble [drums, bass, pad, keys, lead]\naddFinalizerSession $ dissolve ensemble"
+      "source": "ensemble <- newEnsemble s\ndrums    <- newPlayer 10\nbass     <- newPlayer 1\npad      <- newPlayer 2\nkeys     <- newPlayer 3\nlead     <- newPlayer 4\nsetTempoBpm ensemble 110\ntogether ensemble [drums, bass, pad, keys, lead]\naddFinalizerSession $ dissolve ensemble\nlet cycle = Cnoidal.cycle"
     },
     {
       "cell_type": "text",

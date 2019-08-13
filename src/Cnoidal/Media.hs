@@ -10,18 +10,18 @@ module Cnoidal.Media  (
 
     -- * Temporal Media
     Media, duration, toIntervals, isEmpty,
-    fromInterval, fromIntervals, fromList, list,
+    fromInterval, fromIntervals, fromList, list, cycle,
     filter, filterJust, flow,
     slow, hasten, sustain, shift,
     polyphony, bind, adorn,
     envelope,
-    trim, cut,
+    splitTime, trim, cut,
 
     module Control.Applicative,
     module Data.Semigroup
     ) where
 
-import           Prelude           hiding (filter)
+import           Prelude           hiding (filter, cycle)
 import qualified Data.List         as List
 import           Data.Maybe
 import           Data.Semigroup
@@ -191,15 +191,25 @@ cut dt (Media d xs) = (Media (end dt) ys1, Media duration2 ys2)
     where
     duration2 = case end dt of
         Nothing -> Just 0
-        Just dt -> fmap (\d -> max 0 (d-dt)) d
+        Just dt -> subtractTime dt d
     ys2 = case snd dt of
         Nothing -> []
         Just t2 -> [(dy, x) | (dx, x) <- xs, Just dy <- [intersection (t2,Nothing) dx]]
     ys1 = [(dy, x) | (dx, x) <- xs1, Just dy <- [intersection dt dx]]
     xs1 = takeWhile (not . earlier dt . fst) xs
 
--- TODO: Implement function spanInterval that works with an interval
--- This can then be used with `unfold` !
+-- | Separate intervals into those that start before a given time @t@ and
+-- those that start later.
+splitTime :: Time -> Media a -> (Media a, Media a)
+splitTime t (Media d xs) =
+    (Media (Just t) ys, Media (subtractTime t d) (mapTimes_ (subtract t) zs))
+    where
+    (ys, zs) = List.span ((< t) . start . fst) xs
+
+-- | Subtract a given amount of time from a potentiall infinite interval
+subtractTime :: Time -> Maybe Time -> Maybe Time
+subtractTime t Nothing  = Nothing
+subtractTime t (Just s) = Just $ max 0 (s-t)
 
 -- | Replace each value with a sequence of intervals by itself.
 -- The duration of the result is the duration of the first argument.
@@ -235,17 +245,22 @@ instance Applicative Media where
 instance Alternative Media where
     empty = Media (Just 0) []
     (Media dx xs) <|> (Media dy ys)
-        = Media (maxMaybe dx dy) $ List.sortBy (comparing (fst.fst)) $ xs ++ ys
+        = Media (maxMaybe dx dy) $ merge (comparing $ start . fst) xs ys
 
 -- | Sequential composition.
 instance Semigroup (Media a) where
-    (<>) x@(Media dx xs) (Media dy ys) = case dx of
+    x@(Media dx xs) <> (Media dy ys) = case dx of
         Nothing -> x
         Just dx -> Media (fmap (+dx) dy) (xs ++ mapTimes_ (+dx) ys)
 
+-- | Repeat a 'Media' in infinite sequence.
+cycle :: Media a -> Media a
+cycle x = Media Nothing $ toIntervals y
+    where y = x <> cycle x
+
 -- | Sequential composition.
 instance Monoid (Media a) where
-    mempty  = Media (Just 0) []
+    mempty  = empty
     mappend = (<>)
 
 {-----------------------------------------------------------------------------
@@ -259,6 +274,15 @@ maxMaybe _        _        = Nothing
 -- | Take the minimum of two maybes. 'Nothing' represents infinity.
 minMaybe :: Maybe Time -> Maybe Time -> Maybe Time
 minMaybe = unionWith min
+
+-- | Merge two sorted lists into a sorted list
+merge :: (a -> a -> Ordering) -> [a] -> [a] -> [a]
+merge cmp []     ys     = ys
+merge cmp xs     []     = xs
+merge cmp (x:xs) (y:ys) = case cmp x y of
+    LT -> x : merge cmp xs (y:ys)
+    EQ -> x : y : merge cmp xs ys   -- EQ may be an equivalence only
+    GT -> y : merge cmp (x:xs) ys
 
 -- | Combine two maybe values.
 unionWith :: (a -> a -> a) -> Maybe a -> Maybe a -> Maybe a

@@ -69,12 +69,11 @@ data Player = Player
 type Musicbox a = [[(Interval, a)]]
 
 fromMediaCycle :: Media a -> Musicbox a
-fromMediaCycle media = mycycle $ map (measure . fromIntegral) [0..len-1]
+fromMediaCycle media = mycycle $ Data.List.unfoldr next media
     where
-    measure t = [ ((subtract t t1, (subtract t) `fmap` s2), a)
-                | ((t1,s2),a) <- toIntervals media, t <= t1, t1 < t+1]
-    len   = forwardToInteger $ maybe 1 id (duration media)
     mycycle xs = if null xs then [] else Data.List.cycle xs
+    next    xs = if isEmpty xs then Nothing else Just $ helper $ splitTime 1 xs
+        where helper (a,b) = (toIntervals a, b)
 
 forwardToInteger :: Time -> Integer
 forwardToInteger x = if r == 0 then q else q + 1
