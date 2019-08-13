@@ -11,7 +11,7 @@ module Cnoidal.Media  (
     -- * Temporal Media
     Media, duration, toIntervals, fromInterval, fromIntervals, fromList, list,
     filter, filterJust, flow,
-    slow, hasten, sustain, shift, staircase,
+    slow, hasten, sustain, shift,
     polyphony, bind, adorn,
     envelope,
     trim, cut,
@@ -173,11 +173,6 @@ shift :: Time -> Media a -> Media a
 shift dt = trim (0, Nothing) . shift_ dt
 
 shift_ dt (Media d xs) = Media d $ mapTimes_ (+dt) xs
-
--- | Repeatedly shift a sequence of media and stack the in parallel.
-staircase :: Time -> [Media a] -> Media a
-staircase dt xs = asum [(shift (fromIntegral n) x) | (x,n) <- zip xs [0..]]
-    where asum = foldr (<|>) empty
 
 -- | Trim a Media to a time interval.
 trim :: Interval -> Media a -> Media a
