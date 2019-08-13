@@ -9,7 +9,8 @@ module Cnoidal.Media  (
     Interval, start, end, earlier, later, intersection, intersect, disjoint,
 
     -- * Temporal Media
-    Media, duration, toIntervals, fromInterval, fromIntervals, fromList, list,
+    Media, duration, toIntervals, isEmpty,
+    fromInterval, fromIntervals, fromList, list,
     filter, filterJust, flow,
     slow, hasten, sustain, shift,
     polyphony, bind, adorn,
@@ -90,6 +91,11 @@ data Media a = Media
     --
     -- FIXME: Be more pedantic about invariants!
     deriving (Eq, Ord, Show)
+
+-- | Test whether a 'Media' is empty, i.e. has duration @0@ and contains no intervals.
+isEmpty :: Media a -> Bool
+isEmpty (Media (Just 0) []) = True
+isEmpty _                   = False
 
 instance Functor Media where
     fmap f (Media d xs) = Media d $ map (\(a,x) -> (a,f x)) xs
