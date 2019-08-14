@@ -292,9 +292,9 @@ linspace :: Fractional a => a -> a -> Int -> [a]
 linspace x y n = [ x + (y-x)*t | j <- [0..n-1]
                  , let t = fromIntegral j / fromIntegral (n-1)]
 
--- | Mordent embellishment that goes up a whole tone for a 32th.
-mordent :: Pitch -> Media Pitch
-mordent x = hasten 32 (list [x,x+2]) <> pure x
+-- | Mordent embellishment that goes up one step for a 32th note.
+mordent :: Num a => a -> Media a
+mordent x = hasten 32 (list [x,x+1]) <> pure x
 
 {-----------------------------------------------------------------------------
     Chords
