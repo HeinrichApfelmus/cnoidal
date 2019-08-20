@@ -35,10 +35,11 @@ groupRows media = [(a, map fst $ Prelude.filter ((== a) . snd) ias) | a <- as]
     as  = reverse $ Data.List.nub $ Data.List.sort $ map snd ias
 
 drawRow :: Show a => (a, [Interval]) -> Dia
-drawRow (a,xs) = lw 1 $ position $
-    (p2 (-3/2, 0), (text (show a) # scale 0.8) `atop` rect 3 1) : map toRect xs
+drawRow (a,xs) = position $ title : map toRect xs
     where
-    toRect (t1, mt2) = (p2 (a + (b-a)/2, 0), rect (b-a) 1)
+    title = (p2 (-1.7,0), (text (show a) # scale 0.8) `atop`
+                rect 3 1 # fc (darken 0.6 white) # lw 0)
+    toRect (t1, mt2) = (p2 (a + (b-a)/2, 0), rect (b-a) 1 # lw 1)
         where
         a = 8*fromRational t1
         b = 8*maybe 20 fromRational mt2
