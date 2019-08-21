@@ -7,7 +7,7 @@ module Cnoidal.Music (
     -- * Rhythm
     Velocity, ppp, pp, piano, mp, fff, ff, forte, mf,
     Beat,
-    quarter, quaver, beat, durations, tim,
+    quarter, quaver, beat, durations, tim, tims,
     campfire,
     staccato, portato,
     bd, sn, rim, hh, chh, ohh, crash,
@@ -69,10 +69,14 @@ quaver  = 1/8
 -- | Map rhythm words into their beats.
 tim :: Map String Beat
 tim = beat 16 <$> associate
-    "schwein eisbaer seerobbe schmetterling ringelnatter giraffe"
-    "x... x.x. x.xx xx.x xxxx .xxx"
+    "schwein eisbaer seerobbe schmetterling ringelnatter giraffe ratte"
+    "x... x.x. x.xx xx.x xxxx .xxx xx.."
     where
     associate xs ys = M.fromList $ zip (words xs) (words ys)
+
+-- | Read a list of rythm words that are separated by whitespace.
+tims :: String -> Beat
+tims = mconcat . Data.catMaybes . map (flip M.lookup tim) . words
 
 -- | Create a beat from a string.
 --
@@ -172,7 +176,7 @@ sharps  = associate "# b" [1,-1]
 names   = associate "c d e f g a b" [0,2,4,5,7,9,11]
 
 
--- | Read a list of `movable do` that are separated by whitespace.
+-- | Read a list of /movable do/ that are separated by whitespace.
 dores :: String -> [Pitch]
 dores = map (fst . doreP) . words
 

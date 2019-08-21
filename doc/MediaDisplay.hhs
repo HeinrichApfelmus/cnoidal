@@ -20,6 +20,10 @@
     {
       "cell_type": "code",
       "source": "timeline $ polyphony $ fromList $ voicelead $ chords \"am F dm G\""
+    },
+    {
+      "cell_type": "code",
+      "source": "timeline $ tims \"seerobbe giraffe seerobbe ringelnatter\""
     }
   ],
   "extensions": "OverloadedStrings",
