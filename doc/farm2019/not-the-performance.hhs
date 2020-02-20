@@ -1,0 +1,101 @@
+{
+  "version": "0.2.1.0",
+  "cells": [
+    {
+      "cell_type": "text",
+      "source": "How to play sound in Haskell?\n\nConnect to a MIDI output device (e.g. Fluidsynth).\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "s <- openMidi\naddFinalizerSession $ closeMidi >>= print\nshow s"
+    },
+    {
+      "cell_type": "text",
+      "source": "Create an ensemble and players.\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "ensemble <- newEnsemble s\ndrums    <- newPlayer 10\nbass     <- newPlayer 1\npad      <- newPlayer 2\nkeys     <- newPlayer 3\nlead     <- newPlayer 4\nsetTempoBpm ensemble 110\ntogether ensemble [drums, bass, pad, keys, lead]\naddFinalizerSession $ dissolve ensemble\nlet cycle = Cnoidal.cycle"
+    },
+    {
+      "cell_type": "text",
+      "source": "Drums\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "let d1 = with bd <$> cycle (beat 8 \"x,, x,, x,\")\n    d2 = with sn <$> cycle (beat 4  \",x,x\")\n    d3 = with hh <$> cycle (beat 16 \"XxXx\")\nplay drums $ d1 <|> d2 <|> d3"
+    },
+    {
+      "cell_type": "code",
+      "source": "play drums $ silence"
+    },
+    {
+      "cell_type": "text",
+      "source": "Bass\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "play bass $ list (pitches \"a2 f2 c3 g2\") <* hasten 2 (cycle (beat 8 \"x_, x__ ,,\"))"
+    },
+    {
+      "cell_type": "code",
+      "source": "play bass $ silence"
+    },
+    {
+      "cell_type": "text",
+      "source": "Pad\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "play pad $ polyphony $ list $ voicelead $ chords \"am f c g\""
+    },
+    {
+      "cell_type": "code",
+      "source": "play pad $ silence"
+    },
+    {
+      "cell_type": "text",
+      "source": "Keys\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "play keys $ polyphony $ (list $ voicelead $ chords \"am f c g\") <* cycle campfire"
+    },
+    {
+      "cell_type": "code",
+      "source": "play keys $ silence"
+    },
+    {
+      "cell_type": "text",
+      "source": "Lead\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "let m1 = [0,1,2,3] `flow` beat 4 \"xxxx\"\n    m2 = [5,4] `flow` beat 4 \",x_x\"\n    m3 = adorn (\\x -> hasten 32 $ list [x,x+1]) $ [5,4,3,2,1,2,6] `flow` (times 16 $ beat 16 \"x\")\nplay lead $ ats (pentatonic (p \"a4\")) $ m1 <> m2 <> m1 <> m3"
+    },
+    {
+      "cell_type": "code",
+      "source": "play lead $ silence"
+    },
+    {
+      "cell_type": "text",
+      "source": "Exit everything.\n"
+    },
+    {
+      "cell_type": "code",
+      "source": "dissolve ensemble"
+    },
+    {
+      "cell_type": "code",
+      "source": "show `fmap` closeMidi"
+    }
+  ],
+  "extensions": "OverloadedStrings",
+  "importModules": "import Cnoidal",
+  "loadFiles": "src/Cnoidal.hs",
+  "settings": {
+    "packageTool": "stack",
+    "packagePath": "../hyper-haskell/haskell/stack.yaml",
+    "searchPath": "src"
+  }
+}
